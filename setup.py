@@ -8,7 +8,7 @@ setup(
     author="WaterTAP r-ENRTL contributors",
     python_requires=">=3.8",
     install_requires=[
-        "watertap >= 0.6.0",
+        "watertap >= 0.8.0rc0",
         "pytest >= 7",
     ],
 )
