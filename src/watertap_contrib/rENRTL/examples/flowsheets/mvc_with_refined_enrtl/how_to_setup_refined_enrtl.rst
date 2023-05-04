@@ -18,9 +18,9 @@ Main Assumptions
 ^^^^^^^^^^^^^^^^
 Some of the main assumptions in this model are given below:
 
-1. Hydration numbers are treated as ion-specific adjustable parameters. They are referred to as hydration indices and are allowed to take both negative and positive vales in order to describe the structure of water in the local neighbourhood.
+1. Hydration numbers are treated as ion-specific adjustable parameters. They are referred to as hydration indices and are allowed to take both negative and positive vales in order to describe the structure of water in the local neighborhood.
 
-2. The activity coefficients of the hydrated solution are conected to the experimentalist's level molal activity coefficients of the unhydrated solution while keeping the total Gibbs free energy of the solution constant.
+2. The activity coefficients of the hydrated solution are connected to the experimentalist's level molal activity coefficients of the unhydrated solution while keeping the total Gibbs free energy of the solution constant.
 
 3. The model uses unsymmetrical reference state
 
