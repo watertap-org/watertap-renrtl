@@ -52,6 +52,14 @@ to moderate concentrations, single salts up to solubility limit.
 frameworks in electrolyte thermodynamic model development. Fluid Phase
 Equilib., 2019
 
+[6] E. Glueckauf, Molar volumes of ions, Trans. Faraday Soc. 61 (1965).
+
+[7] Chen, Chau‐Chyun, Herbert I. Britt, J. F. Boston, and L. B. Evans. 
+"Local composition model for excess Gibbs energy of electrolyte systems. 
+Part I: Single solvent, single completely dissociated electrolyte systems."
+AIChE Journal 28, no. 4 (1982): 588-596.
+
+
 Note that "charge number" in the paper [1] refers to the absolute value
 of the ionic charge.
 
@@ -334,8 +342,10 @@ class rENRTL(Ideal):
 
         # Add beta constant, which represents the radius of
         # electrostricted water in the hydration shell of ions and it
-        # is specific to the type of electrolyte. The values are taken
-        # from ref[4].
+        # is specific to the type of electrolyte. 
+        # Beta is a parameter determined by the charge of the ion pairs, like NaCl is 1-1, Na2SO4 is 1-2
+        # Beta is obtained using parameter estimation by Xi Yang ref[3] (page 35 values multiplied by 5.187529), 
+        # original data used for parameter estimation are from ref[4].
         b.add_component(
             "beta",
             pyo.Var(
@@ -522,7 +532,7 @@ class rENRTL(Ideal):
 
         # ---------------------------------------------------------------------
         # Long-range terms
-
+        # Eqn 22 from ref 6
         def rule_Vo(b, i):
 
             b.ionic_radius_m = pyo.units.convert(
@@ -583,7 +593,8 @@ class rENRTL(Ideal):
                 doc="Mole fraction at unhydrated level [dimensionless]",
             ),
         )
-
+        # Function to calculate Volume of Solution [m3], this function is a combination of Eqn 9 & 10 from ref [3]
+        
         # Average molar volume of solvent
         def rule_vol_mol_solvent(b):
             # Equation from ref[3], page 14
@@ -612,6 +623,7 @@ class rENRTL(Ideal):
         )
 
         # Partial molar volume of solution
+        # Partial Molar Volume of Solvent/Cation/Anion (m3/mol) derived from Eqn 10 & 11 from ref [3]
         def rule_vol_mol_solution(b, j):
             """This function calculates the partial molar volumes for ions and
             solvent needed in the refined eNRTL model
@@ -698,6 +710,8 @@ class rENRTL(Ideal):
             ),
         )
 
+        # Distance of Closest Approach (m) 
+        # Eqn 12 from ref [3] 
         def rule_ar(b):
 
             b.distance_species = pyo.Param(
@@ -727,6 +741,11 @@ class rENRTL(Ideal):
             pname + "_ar",
             pyo.Expression(rule=rule_ar, doc="Distance of closest approach [m]"),
         )
+        
+        # Functions to calculate parameters for long-range equations
+        # b term
+        # ref[3] eq#[2] first line
+        # b_term = kappa*ar/I. The I term here is the ionic strength. kappa is from ref[3] eq+2 first line
 
         def rule_b_term(b):
             eps = getattr(b, pname + "_relative_permittivity_solvent")
@@ -762,8 +781,7 @@ class rENRTL(Ideal):
             pyo.Expression(rule=rule_A_DH, doc="Debye-Huckel parameter"),
         )
 
-        # Long-range (PDH) contribution to activity coefficient. This
-        # equation includes Born correction. Eqn from ref[5].
+        # Long-range (PDH) contribution to activity coefficient. Eqn derived from ref[5].
         def rule_log_gamma_pdh(b, j):
             A = getattr(b, pname + "_A_DH")
             Ix = getattr(b, pname + "_ionic_strength")
@@ -1181,7 +1199,7 @@ class rENRTL(Ideal):
             pyo.Expression(
                 b.params.true_species_set,
                 rule=rule_log_gamma_lc,
-                doc="Local contribution contribution to activity coefficient",
+                doc="Local contribution to activity coefficient",
             ),
         )
 
@@ -1292,7 +1310,7 @@ class rENRTL(Ideal):
             ),
         )
 
-        # Mean molal log_gamma of ions
+        # Mean molal log_gamma of ions, Eqn 20 from ref [3] for constant hydration model and Eqn 21 from ref [3] for stepwise hydration model
         def rule_log_gamma_molal(b):
             X = getattr(b, pname + "_X")
             lc = getattr(b, pname + "_log_gamma_lc")
@@ -1739,7 +1757,7 @@ def log_gamma_lc(b, pname, s, X, G, tau):
     else:
         m = s
 
-        # Eqn 25 from ref[1]
+        # Eqn 8 from ref[2] 
         return (
             sum(X[i] * G[i, m] * tau[i, m] for i in aqu_species)
             / sum(X[i] * G[i, m] for i in aqu_species)

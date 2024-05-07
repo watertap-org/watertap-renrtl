@@ -44,9 +44,14 @@ Biophys. Chem. 51 (1994) 111–127.
 thermodynamic properties of ionic solutions using a stepwise solvation
 equilibrium model. Fluid Phase Equil., 2006,242:176-188.
 
+[5] Y. Marcus, Ion solvation, Wiley-Interscience, New York, 1985.
+
+[6] Y. Marcus, Thermodynamics of solvation of ions. Part 5.—Gibbs free energy of hydration at
+# 298.15 K, J. Chem. Soc., Faraday Trans. 87 (1991) 2995–2999. doi:10.1039/FT9918702995.
+
 tau, hydration numbers, and hydration constant values are obtained
-from ref[2], ionic radii and partial molar volume at infinite dilution
-from ref[3], and number of sites and minimum hydration number from
+from ref[2], ionic radii is taken from ref[3] and ref[6], and partial molar volume at infinite dilution
+from ref[5], and number of sites and minimum hydration number from
 ref[4].
 
 Modified by: Soraya Rawlings

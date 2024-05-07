@@ -1,13 +1,13 @@
-.. _how_to_setup_refined_enrtl:
+.. _how_to_setup_multielectrolytes_refined_enrtl:
 
-How to setup refined electrolyte NRTL
+How to setup multielectrolytes refined electrolyte NRTL
 =====================================
 
-The thermodynamic properties of a mixture depend on the interactions between the species of the mixture. The refined electrolyte non-random two-liquid (r-eNRTL) method expresses the excess Gibbs free energy of the electrolyte solution as a function of long-range electrostatic contributions that account for ion-ion interactions and short-range interactions that account for local, ion-ion, ion-molecule, and molecule-molecule interactions. The long-range interactions are modeled using a thermodynamically consistent extension of the Debye-Huckel (DH) equation, while the short-range interactions of hydrated ions with each other and with solvent molecules are described using the NRTL model.
+The thermodynamic properties of a mixture depend on the interactions between the species of the mixture. The multielectrolytes refined electrolyte non-random two-liquid (r-eNRTL) method expresses the excess Gibbs free energy of the multielectrolyte solution as a function of long-range electrostatic contributions that account for ion-ion interactions and short-range interactions that account for local, ion-ion, ion-molecule, and molecule-molecule interactions. The long-range interactions are modeled using a thermodynamically consistent extension of the Debye-Huckel (DH) equation, while the short-range interactions of hydrated ions with each other and with solvent molecules are described using the NRTL model.
 
 Hydration is included in the NRTL effective mole fractions to account for the changes in composition of the local neighborhoods. The effect of ions on the structure and mobility of water molecules is modeled by allowing hydration numbers to receive positive or negative values that depend on the number of free water molecules around the center specie. 
 
-The r-eNRTL method supports solutions with a single solvent and single electrolyte and an example on how to use it is given in :ref:`_how_to_use_refined_enrtl_in_mvc`. In this method, the electrolyte is dissociated in the solvent as shown in the equation below:
+The multielectrolyte r-eNRTL method supports solutions with a single solvent and two electrolytes with a common cation or anion and an example on how to use it is given in :ref:`_how_to_use_multielectrolytes_refined_enrtl_in_mvc`. In this method, the electrolyte is dissociated in the solvent as shown in the equation below:
 
 .. math:: \rm AB \rightarrow \rm A^{+} + \rm B^{-} 
 
@@ -18,15 +18,17 @@ Main Assumptions
 ^^^^^^^^^^^^^^^^
 Some of the main assumptions in this model are given below:
 
-1. Hydration numbers are treated as ion-specific adjustable parameters. They are referred to as hydration indices and are allowed to take both negative and positive vales in order to describe the structure of water in the local neighborhood.
+1. Hydration numbers are treated as ion-specific parameters, and their values are adjusted in the refined electrolyte NRTL model. They are referred to as hydration indices and are allowed to take both negative and positive vales in order to describe the structure of water in the local neighborhood.
 
-2. The activity coefficients of the hydrated solution are converted to the experimentalist's level molal activity coefficients of the unhydrated solution while keeping the total Gibbs free energy of the solution constant.
+2. The binary interaction parameters for the electrolyte-water specific pairs are taken from the refined electrolyte NRTL model, while electrolyte-electrolyte specific interaction parameters are fitted using the multielectrolyte refined eNRTL method.
 
-3. The model uses unsymmetrical reference state
+3. The activity coefficients of the hydrated solution are converted to the experimentalist's level molal activity coefficients of the unhydrated solution while keeping the total Gibbs free energy of the solution constant.
 
-4. The distance of closest approach of the ions is calculated from the ionic radii of the ions and the radius of the water molecule in the hydration shell.
+4. The model uses unsymmetrical reference state
 
-5. The material state is in terms of phase-component flow, temperature, and pressure (FcpTP), which includes full information on the phase equilibria within the state variables reducing the complexity of the problem.
+5. The average distance of closest approach of the ions is calculated by taking a weighted average of the distance of closest approach of all the ion pairs.
+
+6. The material state is in terms of phase-component flow, temperature, and pressure (FcpTP), which includes full information on the phase equilibria within the state variables reducing the complexity of the problem.
    
 
 Setup for Configuration Dictionary:
