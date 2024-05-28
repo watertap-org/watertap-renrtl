@@ -51,8 +51,7 @@ equilibrium model. Fluid Phase Equil., 2006,242:176-188.
 
 tau, hydration numbers, and hydration constant values are obtained
 from ref[2], ionic radii is taken from ref[3] and ref[6], and partial molar volume at infinite dilution
-from ref[5], and number of sites and minimum hydration number from
-ref[4].
+from ref[5], and number of sites and minimum hydration number from ref[4].
 
 Modified by: Soraya Rawlings
 

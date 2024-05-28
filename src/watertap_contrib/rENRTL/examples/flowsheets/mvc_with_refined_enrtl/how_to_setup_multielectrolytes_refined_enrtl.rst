@@ -1,18 +1,13 @@
 .. _how_to_setup_multielectrolytes_refined_enrtl:
 
-How to setup multielectrolytes refined electrolyte NRTL
+How to setup multielectrolytes refined eNRTL
 =====================================
 
 The thermodynamic properties of a mixture depend on the interactions between the species of the mixture. The multielectrolytes refined electrolyte non-random two-liquid (r-eNRTL) method expresses the excess Gibbs free energy of the multielectrolyte solution as a function of long-range electrostatic contributions that account for ion-ion interactions and short-range interactions that account for local, ion-ion, ion-molecule, and molecule-molecule interactions. The long-range interactions are modeled using a thermodynamically consistent extension of the Debye-Huckel (DH) equation, while the short-range interactions of hydrated ions with each other and with solvent molecules are described using the NRTL model.
 
 Hydration is included in the NRTL effective mole fractions to account for the changes in composition of the local neighborhoods. The effect of ions on the structure and mobility of water molecules is modeled by allowing hydration numbers to receive positive or negative values that depend on the number of free water molecules around the center specie. 
 
-The multielectrolyte r-eNRTL method supports solutions with a single solvent and two electrolytes with a common cation or anion and an example on how to use it is given in :ref:`_how_to_use_multielectrolytes_refined_enrtl_in_mvc`. In this method, the electrolyte is dissociated in the solvent as shown in the equation below:
-
-.. math:: \rm AB \rightarrow \rm A^{+} + \rm B^{-} 
-
-where :math:`AB` represents the electrolyte while :math:`A` is the cation and :math:`B` the anion.
-
+The multielectrolytes r-eNRTL method supports solutions with a single solvent and two electrolytes with a common cation or anion and an example on how to use it is given in :ref:`_how_to_use_multielectrolytes_refined_enrtl_in_mvc`. 
 
 Main Assumptions
 ^^^^^^^^^^^^^^^^
@@ -20,11 +15,11 @@ Some of the main assumptions in this model are given below:
 
 1. Hydration numbers are treated as ion-specific parameters, and their values are adjusted in the refined electrolyte NRTL model. They are referred to as hydration indices and are allowed to take both negative and positive vales in order to describe the structure of water in the local neighborhood.
 
-2. The binary interaction parameters for the electrolyte-water specific pairs are taken from the refined electrolyte NRTL model, while electrolyte-electrolyte specific interaction parameters are fitted using the multielectrolyte refined eNRTL method.
+2. The binary interaction parameters for the electrolyte-water specific pairs are taken from the refined electrolyte NRTL model, while electrolyte-electrolyte specific interaction parameters are fitted using the multielectrolyte r-eNRTL method.
 
 3. The activity coefficients of the hydrated solution are converted to the experimentalist's level molal activity coefficients of the unhydrated solution while keeping the total Gibbs free energy of the solution constant.
 
-4. The model uses unsymmetrical reference state
+4. The model uses unsymmetrical reference state.
 
 5. The average distance of closest approach of the ions is calculated by taking a weighted average of the distance of closest approach of all the ion pairs.
 
@@ -33,9 +28,8 @@ Some of the main assumptions in this model are given below:
 
 Setup for Configuration Dictionary:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-In addition to the core configuration options that are normally included for an IDAES control volume and the eNRTL method, the r-eNRTL method includes two different hydration models and at least one of them should be selected when using the method. The two hydration models are: constant hydration and stepwise hydration. To select which hydration model to use include `constant_hydration` or `stepwise_hydration` in the components `parameter_data` under the `hydration_model` key word. For the calculation of the hydration terms when using both models, the r-eNRTL requires the hydration constant for the electrolyte and the hydration number, ionic radius, partial molar volume, and number of available sites for the ions. To know more details about how to setup the default parameters in a configuration dictionary, refer to `how_to_use_apparent_and_True_chemical_species`.
-
-An example of how to setup a configuration dictionary for the r-eNRTL is provided below:
+In addition to the core configuration options that are normally included for an IDAES control volume and the eNRTL method, the r-eNRTL method includes two different hydration models : constant hydration and stepwise hydration. However, in the case of multielectrolytes r-eNRTL model only constant hydration model is included. Select `constant_hydration` in the components `parameter_data` under the `hydration_model` key word. For the calculation of the long-range electrostatic contributions, the multielectrolytes r-eNRTL requires the hydration constant for the electrolyte and the hydration number, ionic radius, partial molar volume, and number of available sites for the ions. To know more details about how to setup the default parameters in a configuration dictionary, refer to `how_to_use_apparent_and_True_chemical_species`.
+An example of how to setup a configuration dictionary for the r-eNRTL is provided below: (This is not for the multielectrolytes case)
 
 .. code-block::
 
@@ -74,8 +68,7 @@ An example of how to setup a configuration dictionary for the r-eNRTL is provide
 
     tau, hydration numbers, and hydration constant values are obtained
     from ref[2], ionic radii is taken from ref[3] and ref[6], and partial molar volume at infinite dilution
-    from ref[5], and number of sites and minimum hydration number from
-    ref[4].
+    from ref[5], and number of sites and minimum hydration number from ref[4].
     """
 
     def dens_mol_water_expr(b, s, T):
