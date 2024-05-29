@@ -12,10 +12,11 @@ env:
 jobs:
 
   code-formatting:
+    name: Check code is formatted (Black)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Check code is formatted (Black)
+      - name: Run Black in check mode
         uses: psf/black@stable
         with:
           options: "--check"
