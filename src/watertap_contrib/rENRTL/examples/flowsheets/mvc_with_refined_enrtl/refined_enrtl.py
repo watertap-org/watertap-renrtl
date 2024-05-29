@@ -342,9 +342,9 @@ class rENRTL(Ideal):
 
         # Add beta constant, which represents the radius of
         # electrostricted water in the hydration shell of ions and it
-        # is specific to the type of electrolyte. 
+        # is specific to the type of electrolyte.
         # Beta is a parameter determined by the charge of the ion pairs, like NaCl is 1-1, Na2SO4 is 1-2
-        # Beta is obtained using parameter estimation by Xi Yang ref[3] (page 35 values multiplied by 5.187529), 
+        # Beta is obtained using parameter estimation by Xi Yang ref[3] (page 35 values multiplied by 5.187529),
         # original data used for parameter estimation are from ref[4].
         b.add_component(
             "beta",
@@ -594,7 +594,7 @@ class rENRTL(Ideal):
             ),
         )
         # Function to calculate Volume of Solution [m3], this function is a combination of Eqn 9 & 10 from ref [3]
-        
+
         # Average molar volume of solvent
         def rule_vol_mol_solvent(b):
             # Equation from ref[3], page 14
@@ -710,8 +710,8 @@ class rENRTL(Ideal):
             ),
         )
 
-        # Distance of Closest Approach (m) 
-        # Eqn 12 from ref [3] 
+        # Distance of Closest Approach (m)
+        # Eqn 12 from ref [3]
         def rule_ar(b):
 
             b.distance_species = pyo.Param(
@@ -741,7 +741,7 @@ class rENRTL(Ideal):
             pname + "_ar",
             pyo.Expression(rule=rule_ar, doc="Distance of closest approach [m]"),
         )
-        
+
         # Functions to calculate parameters for long-range equations
         # b term
         # ref[3] eq#[2] first line
@@ -1757,7 +1757,7 @@ def log_gamma_lc(b, pname, s, X, G, tau):
     else:
         m = s
 
-        # Eqn 8 from ref[2] 
+        # Eqn 8 from ref[2]
         return (
             sum(X[i] * G[i, m] * tau[i, m] for i in aqu_species)
             / sum(X[i] * G[i, m] for i in aqu_species)
