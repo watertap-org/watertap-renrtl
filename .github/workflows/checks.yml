@@ -40,7 +40,8 @@ jobs:
           - win64
         install-mode:
           - editable
-          - noneditable
+          # noneditable will fail unless the repo is public
+          # - noneditable
         include:
           - os: linux
             os-version: ubuntu-latest
