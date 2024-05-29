@@ -11,19 +11,20 @@ env:
 
 jobs:
 
-  linting:
+  code-formatting:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: psf/black@stable
+      - name: Check code is formatted (Black)
+        uses: psf/black@stable
         with:
-          options: "--check --verbose"
+          options: "--check"
           version: "~= 22.0"
 
   pytest:
     name: pytest (${{ matrix.os }}/${{ matrix.python-version }}/${{ matrix.install-mode }})
     runs-on: ${{ matrix.os-version }}
-    needs: [linting]
+    needs: [code-formatting]
     strategy:
       fail-fast: false
       matrix:
