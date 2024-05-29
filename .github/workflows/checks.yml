@@ -30,7 +30,8 @@ jobs:
       matrix:
         python-version:
           - "3.8"
-          # keep these commented while private to reduce number of jobs
+          # keep additional Python versions commented while private to reduce number of jobs
+          # (CI jobs run in private repos are counted towards monthly usage limits for the entire org)
           # - "3.9"
           # - "3.10"
           - "3.11"
