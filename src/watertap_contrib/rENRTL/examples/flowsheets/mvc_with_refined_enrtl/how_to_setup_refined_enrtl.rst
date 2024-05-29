@@ -20,7 +20,7 @@ Some of the main assumptions in this model are given below:
 
 1. Hydration numbers are treated as ion-specific adjustable parameters. They are referred to as hydration indices and are allowed to take both negative and positive vales in order to describe the structure of water in the local neighborhood.
 
-2. The activity coefficients of the hydrated solution are connected to the experimentalist's level molal activity coefficients of the unhydrated solution while keeping the total Gibbs free energy of the solution constant.
+2. The activity coefficients of the hydrated solution are converted to the experimentalist's level molal activity coefficients of the unhydrated solution while keeping the total Gibbs free energy of the solution constant.
 
 3. The model uses unsymmetrical reference state
 
@@ -48,28 +48,32 @@ An example of how to setup a configuration dictionary for the r-eNRTL is provide
 
     """
     References:
-
     [1] Islam, R.I., et al., Molecular thermodynamics for scaling
     prediction: Case of membrane distillation, Separation and Purification
     Technology, 2021, Vol. 276.
-    [2] Local Composition Model for Excess Gibbs Energy of Electrolyte
-    Systems, Pt 1.  Chen, C.-C., Britt, H.I., Boston, J.F., Evans, L.B.,
-    AIChE Journal, 1982, Vol. 28(4), pgs. 588-596
-    [3] Xi Yang, Paul I. Barton, and George M. Bollas, Refined
+
+    [2] Xi Yang, Paul I. Barton, and George M. Bollas, Refined
     electrolyte-NRTL model: Inclusion of hydration for the detailed
     description of electrolyte solutions. Part I: Single electrolytes up
     to moderate concentrations, single salts up to solubility limit.
-    [4] Y. Marcus, A simple empirical model describing the thermodynamics
+
+    [3] Y. Marcus, A simple empirical model describing the thermodynamics
     of hydration of ions of widely varying charges, sizes, and shapes,
     Biophys. Chem. 51 (1994) 111–127.
-    [5] Simonin JP, Bernard O., Krebs S., Kunz W., Modelling of the
+
+    [4] Simonin JP, Bernard O., Krebs S., Kunz W., Modelling of the
     thermodynamic properties of ionic solutions using a stepwise solvation
     equilibrium model. Fluid Phase Equil., 2006,242:176-188.
 
+    [5] Y. Marcus, Ion solvation, Wiley-Interscience, New York, 1985.
+
+    [6] Y. Marcus, Thermodynamics of solvation of ions. Part 5.—Gibbs free energy of hydration at
+    # 298.15 K, J. Chem. Soc., Faraday Trans. 87 (1991) 2995–2999. doi:10.1039/FT9918702995.
+
     tau, hydration numbers, and hydration constant values are obtained
-    from ref[3], ionic radii and partial molar volume at infinite dilution
-    from ref[4], and number of sites and minimum hydration number from
-    ref[5]
+    from ref[2], ionic radii is taken from ref[3] and ref[6], and partial molar volume at infinite dilution
+    from ref[5], and number of sites and minimum hydration number from
+    ref[4].
     """
 
     def dens_mol_water_expr(b, s, T):
