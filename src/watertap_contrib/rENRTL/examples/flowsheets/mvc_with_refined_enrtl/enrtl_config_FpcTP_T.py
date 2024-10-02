@@ -1,15 +1,15 @@
 ###############################################################################
-# WaterTAP Copyright (c) 2020-2023, The Regents of the University of California,
+# WaterTAP Copyright (c) 2020-2024, The Regents of the University of California,
 # through Lawrence Berkeley National Laboratory, Oak Ridge National Laboratory,
 # National Renewable Energy Laboratory, and National Energy Technology
 # Laboratory (subject to receipt of any required approvals from the U.S. Dept.
 # of Energy). All rights reserved.
 #
-# Copyright 2023, National Technology & Engineering Solutions of Sandia,
+# Copyright 2024, National Technology & Engineering Solutions of Sandia,
 # LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the
 # U.S. Government retains certain rights in this software.
 #
-# Copyright 2023, Pengfei Xu and Matthew D. Stuber and the University
+# Copyright 2024, Pengfei Xu and Matthew D. Stuber and the University
 # of Connecticut.
 #
 # Please see the files COPYRIGHT.md and LICENSE.md for full copyright and license
@@ -67,13 +67,33 @@ from idaes.models.properties.modular_properties.pure.electrolyte import (
     relative_permittivity_constant,
 )
 from idaes.core.util.exceptions import ConfigurationError
+from numpy import log, exp
 
 # Import refined eNRTL method
-from refined_enrtl import rENRTL
+from refined_enrtl_T_NaCl import rENRTL
 
 print()
 print("**Using refined eNRTL model")
 print()
+
+
+def dens_mol_water_expr(b, s, T):
+    return 1000 / 18e-3 * pyunits.mol / pyunits.m**3
+
+
+def relative_permittivity_expr(b, s, T):
+    AM = 78.54003
+    BM = 31989.38
+    CM = 298.15
+
+    return AM + BM * (1 / T * pyunits.K - 1 / CM)
+
+
+def Hydration_fun_T(T):
+    A = [-1.661722975e3, -0.4995756099, 2.740960825]
+    h = A[1] * exp(A[0] * (1 / T * pyunits.K - 1 / 298.15)) + A[2]
+    return h * 1 / 2
+
 
 # The hydration models supported by the refined eNRTL method are:
 # constant_hydration or stepwise_hydration.
@@ -90,19 +110,6 @@ else:
         f"The given hydration model is not supported by the refined model. "
         "Please, try 'constant_hydration' or 'stepwise_hydration'."
     )
-
-
-def dens_mol_water_expr(b, s, T):
-    return 1000 / 18e-3 * pyunits.mol / pyunits.m**3
-
-
-def relative_permittivity_expr(b, s, T):
-    AM = 78.54003
-    BM = 31989.38
-    CM = 298.15
-
-    return AM + BM * (1 / T * pyunits.K - 1 / CM)
-
 
 configuration = {
     "components": {

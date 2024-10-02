@@ -3,18 +3,18 @@
 # Framework (IDAES IP) was produced under the DOE Institute for the
 # Design of Advanced Energy Systems (IDAES).
 #
-# Copyright (c) 2018-2023 by the software owners: The Regents of the
+# Copyright (c) 2018-2024 by the software owners: The Regents of the
 # University of California, through Lawrence Berkeley National Laboratory,
 # National Technology & Engineering Solutions of Sandia, LLC, Carnegie Mellon
 # University, West Virginia University Research Corporation, et al.
 # All rights reserved.  Please see the files COPYRIGHT.md and LICENSE.md
 # for full copyright and license information.
 #
-# Copyright 2023, National Technology & Engineering Solutions of Sandia,
+# Copyright 2024, National Technology & Engineering Solutions of Sandia,
 # LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the
 # U.S. Government retains certain rights in this software
 #
-# Copyright 2023, Pengfei Xu and Matthew D. Stuber and the University
+# Copyright 2024, Pengfei Xu and Matthew D. Stuber and the University
 # of Connecticut.
 #
 # Please see the files COPYRIGHT.md and LICENSE.md for full copyright and
@@ -59,6 +59,11 @@ Equilib., 2019
 Part I: Single solvent, single completely dissociated electrolyte systems."
 AIChE Journal 28, no. 4 (1982): 588-596.
 
+[8] Silvester, L. F., & Pitzer, K. S. (1976). Thermodynamics of Geothermal Brines I. Thermodynamic Properties of Vapor-Saturated NaCl.
+
+[9] Bhattacharia, S. K., & Chen, C. C. (2015). Thermodynamic modeling of KCl+ H2O and KCl+ NaCl+ H2O systems using electrolyte NRTL model. Fluid Phase Equilibria, 387, 169-177.
+
+[10] Lin, Y. J., Hsieh, C. J., & Chen, C. C. (2022). Association‐based activity coefficient model for electrolyte solutions. AIChE Journal, 68(2), e17422.
 
 Note that "charge number" in the paper [1] refers to the absolute value
 of the ionic charge.
@@ -79,6 +84,8 @@ from pyomo.environ import (
     units as pyunits,
     value,
     Any,
+    Reals,
+    Expr_if,
 )
 
 from idaes.models.properties.modular_properties.eos.ideal import Ideal
@@ -94,15 +101,16 @@ from idaes.core.util.misc import set_param_from_config
 from idaes.models.properties.modular_properties.base.generic_property import StateIndex
 from idaes.core.util.constants import Constants
 from idaes.core.util.exceptions import BurntToast
+from idaes.core.util.exceptions import ConfigurationError
 import idaes.logger as idaeslog
-
+from refined_enrtl_parameters import TemperatureTau
 
 # Set up logger
 _log = idaeslog.getLogger(__name__)
 
 
 DefaultAlphaRule = ConstantAlpha
-DefaultTauRule = ConstantTau
+DefaultTauRule = TemperatureTau
 
 
 class rENRTL(Ideal):
@@ -147,15 +155,19 @@ class rENRTL(Ideal):
             and "tau_rule" in b.config.equation_of_state_options
         ):
             b.config.equation_of_state_options["tau_rule"].build_parameters(b)
+
         else:
-            DefaultTauRule.build_parameters(b)
+            # DefaultTauRule.build_parameters(b)
+            pass
 
     @staticmethod
     def common(b, pobj):
+        pblock = b.parent_block()
+        pblock = pblock.parent_block()
+        DefaultTauRule.build_parameters(pblock.prop_enrtl.Liq)
+
         pname = pobj.local_name
-
         molecular_set = b.params.solvent_set | b.params.solute_set
-
         # Check options for alpha rule
         if (
             pobj.config.equation_of_state_options is not None
@@ -177,7 +189,6 @@ class rENRTL(Ideal):
             ].return_expression
         else:
             tau_rule = DefaultTauRule.return_expression
-
         # ---------------------------------------------------------------------
 
         # Create a list that includes the apparent species with
@@ -433,7 +444,16 @@ class rENRTL(Ideal):
             # an Expression and it is equal to the total hydration
             # parameter calculated using hydration numbers of ions.
             def rule_constant_total_hydration(b):
-                return b.total_hydration_init
+                # Parameters A were obtained by doing parameter estimation using refined eNRTL model. Experimental data is from ref [8]
+                # The relation between total hydration number and temperature is inspired by ref [10] eq [22]m with modification
+                A = [-1.661722975e3, -0.4995756099, 2.740960825]
+
+                h = (
+                    A[1] * exp(A[0] * (1 / b.temperature * pyunits.K - 1 / 298.15))
+                    + A[2]
+                )
+
+                return h
 
             b.add_component(
                 pname + "_total_hydration",
@@ -442,6 +462,7 @@ class rENRTL(Ideal):
                     doc="Total hydration number [dimensionless]",
                 ),
             )
+
         else:
             # In the stepwise hydration model, a Pyomo variable 'Var'
             # is declared for the total hydration term and it is
@@ -467,8 +488,6 @@ class rENRTL(Ideal):
             total_hydration = getattr(b, pname + "_total_hydration")
 
             if len(b.params.solvent_set) == 1:
-                s = b.params.solvent_set.first()
-
                 if (pname, j) not in b.params.true_phase_component_set:
                     return Expression.Skip
                 elif j in b.params.cation_set or j in b.params.anion_set:
@@ -716,17 +735,12 @@ class rENRTL(Ideal):
                 units=pyunits.angstrom,
                 doc="Distance between a solute and solvent",
             )
+            total_hydration = getattr(b, pname + "_total_hydration")
+            obj = Expr_if(total_hydration / 2 >= 0, total_hydration / 2, 0)
+
             return pyo.units.convert(
                 sum(
-                    (
-                        max(
-                            0,
-                            sum(value(b.hydration_number[i]) for i in b.params.ion_set)
-                            / 2,
-                        )
-                        * (b.beta * b.distance_species) ** 3
-                        + b.ionic_radius[i] ** 3
-                    )
+                    (obj * (b.beta * b.distance_species) ** 3 + b.ionic_radius[i] ** 3)
                     ** (1 / 3)
                     for i in b.params.ion_set
                 ),
@@ -1026,6 +1040,70 @@ class rENRTL(Ideal):
                 rule=rule_tau_expr,
                 doc="Binary interaction energy parameters",
             ),
+        )
+
+        def rule_tau_cam_Tfun(b):
+            # Parameters A were obtained by doing parameter estimation using refined eNRTL model. Experimental data is from ref [8]
+            # The relation between total hydration number and temperature is inspired by ref [9] eq [10]
+            T = b.temperature
+            A = [-4.146810471, 67.08967222, -4.919131631]
+            tau = (
+                A[0]
+                + A[1] / T * pyunits.K
+                + A[2] * ((298.15 * pyunits.K - T) / T + log(T / (298.15 * pyunits.K)))
+            )
+            return tau
+
+        b.add_component(
+            pname + "_tau_cam_T",
+            pyo.Expression(
+                rule=rule_tau_cam_Tfun,
+                doc="Tau_cam with temperature dependency",
+            ),
+        )
+
+        def rule_tau_mca_Tfun(b):
+            # Parameters A were obtained by doing parameter estimation using refined eNRTL model. Experimental data is from ref [8]
+            # The relation between total hydration number and temperature is inspired by ref [9] eq [10]
+            T = b.temperature
+            A = [7.039157149, 245.9741099, 12.54029514]
+            tau = (
+                A[0]
+                + A[1] / T * pyunits.K
+                + A[2] * ((298.15 * pyunits.K - T) / T + log(T / (298.15 * pyunits.K)))
+            )
+            return tau
+
+        b.add_component(
+            pname + "_tau_mca_T",
+            pyo.Expression(
+                rule=rule_tau_mca_Tfun,
+                doc="Tau_mca with temperature dependency",
+            ),
+        )
+
+        def Tau_cam_T_Constraint(b):
+            tau_cam = getattr(b, pname + "_tau_cam_T")
+            for c in b.params.cation_set:
+                for a in b.params.anion_set:
+                    for m in molecular_set:
+                        return pobj.tau[(c + ", " + a), m] == tau_cam
+
+        b.add_component(
+            pname + "Tau_cam_T_Equation",
+            pyo.Constraint(rule=Tau_cam_T_Constraint),
+        )
+
+        def Tau_mca_T_Constraint(b):
+            tau_mca = getattr(b, pname + "_tau_mca_T")
+            for c in b.params.cation_set:
+                for a in b.params.anion_set:
+                    for m in molecular_set:
+                        return pobj.tau[m, (c + ", " + a)] == tau_mca
+
+        b.add_component(
+            pname + "Tau_mca_T_Equation",
+            pyo.Constraint(rule=Tau_mca_T_Constraint),
         )
 
         def _calculate_tau_alpha(b):
