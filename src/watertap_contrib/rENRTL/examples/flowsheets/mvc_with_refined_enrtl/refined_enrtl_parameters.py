@@ -38,36 +38,34 @@ class TemperatureTau(object):
     """Class for methods assuming consant tau"""
 
     @staticmethod
-    def build_parameters(b):
-        param_block = b.parent_block()
-
+    def build_parameters(b,pobj):
+        param_block = pobj.parent_block()
         # Get user provided values for tau (if present)
         try:
-            tau_data = param_block.config.parameter_data[b.local_name + "_tau"]
+            tau_data = param_block.config.parameter_data[pobj.local_name + "_tau"]
         except KeyError:
             tau_data = {}
 
         # Check for unused parameters in tau_data
         for i, j in tau_data.keys():
-            if (i, j) not in b.component_pair_set:
+            if (i, j) not in pobj.component_pair_set:
                 raise ConfigurationError(
                     "{} eNRTL tau parameter provided for invalid "
                     "component pair {}. Please check typing and only provide "
-                    "parameters for valid species pairs.".format(b.name, (i, j))
+                    "parameters for valid species pairs.".format(pobj.name, (i, j))
                 )
 
-        def tau_init(b, i, j):
+        def tau_init(pobj, i, j):
             if (i, j) in tau_data.keys():
                 v = tau_data[(i, j)]
             else:
                 # Default interaction value is 0
                 v = 0
             return v
-
         b.add_component(
             "tau",
             Var(
-                b.component_pair_set,
+                pobj.component_pair_set,
                 within=Reals,
                 initialize=tau_init,
                 doc="Binary interaction energy parameters",
@@ -77,12 +75,15 @@ class TemperatureTau(object):
 
     @staticmethod
     def return_expression(b, pobj, i, j, T):
+
         tau_data = {
-            ("H2O", "Na+, Cl-"): pobj.tau["H2O", "Na+, Cl-"],
-            ("Na+, Cl-", "H2O"): pobj.tau["Na+, Cl-", "H2O"],
+
+            ("H2O", "Na+, Cl-"): b.tau["H2O", "Na+, Cl-"],
+            ("Na+, Cl-", "H2O"): b.tau["Na+, Cl-", "H2O"],
+
             ("H2O", "H2O"): 0,
         }
-        if (i, j) in pobj.tau:
+        if (i, j) in b.tau:
             return tau_data[i, j]
         elif i == j:
             return 0

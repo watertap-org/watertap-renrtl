@@ -157,14 +157,14 @@ class rENRTL(Ideal):
             b.config.equation_of_state_options["tau_rule"].build_parameters(b)
 
         else:
-            # DefaultTauRule.build_parameters(b)
             pass
 
     @staticmethod
     def common(b, pobj):
+
         pblock = b.parent_block()
         pblock = pblock.parent_block()
-        DefaultTauRule.build_parameters(pblock.prop_enrtl.Liq)
+        DefaultTauRule.build_parameters(b,pobj)
 
         pname = pobj.local_name
         molecular_set = b.params.solvent_set | b.params.solute_set
@@ -1087,7 +1087,7 @@ class rENRTL(Ideal):
             for c in b.params.cation_set:
                 for a in b.params.anion_set:
                     for m in molecular_set:
-                        return pobj.tau[(c + ", " + a), m] == tau_cam
+                        return b.tau[(c + ", " + a), m] == tau_cam
 
         b.add_component(
             pname + "Tau_cam_T_Equation",
@@ -1099,7 +1099,7 @@ class rENRTL(Ideal):
             for c in b.params.cation_set:
                 for a in b.params.anion_set:
                     for m in molecular_set:
-                        return pobj.tau[m, (c + ", " + a)] == tau_mca
+                        return b.tau[m, (c + ", " + a)] == tau_mca
 
         b.add_component(
             pname + "Tau_mca_T_Equation",
