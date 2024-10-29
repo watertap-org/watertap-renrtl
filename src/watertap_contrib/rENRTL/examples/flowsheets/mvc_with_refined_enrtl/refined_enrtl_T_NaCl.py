@@ -726,6 +726,7 @@ class rENRTL(Ideal):
             ),
         )
 
+        
         # Distance of Closest Approach (m)
         # Eqn 12 from ref [3]
         def rule_ar(b):
@@ -1358,7 +1359,6 @@ class rENRTL(Ideal):
         # Activity coefficient of apparent species
         def rule_log_gamma_pm(b, j):
             cobj = b.params.get_component(j)
-
             if "dissociation_species" in cobj.config:
                 dspec = cobj.config.dissociation_species
                 n = 0
@@ -1390,18 +1390,15 @@ class rENRTL(Ideal):
             log_gamma_appr = getattr(b, pname + "_log_gamma_appr")
             n = getattr(b, pname + "_n")
             total_hydration = getattr(b, pname + "_total_hydration")
-
             # NOTES: Select the first solvent and apparent specie.
             if len(b.params.solvent_set) == 1:
                 s = b.params.solvent_set.first()
                 if len(b.apparent_dissociation_species_set) == 1:
                     ap = b.apparent_dissociation_species_set.first()
-
                     # NOTES: 'flow_mol' could be either of cation or
                     # anion since we assume both flows are the same.
                     if len(b.params.cation_set) == 1:
                         c = b.params.cation_set.first()
-
                         if b.constant_hydration:
                             return (
                                 log_gamma_appr[ap]

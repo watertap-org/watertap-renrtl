@@ -1337,7 +1337,7 @@ class rENRTL(Ideal):
                                     )
                                 )
                             )
-                        else:
+                        else: #Stepwise hydration model has a new equation to compute the log_gamma_molal
                             sum_n = sum(n[i] for i in b.params.true_species_set)
                             return log_gamma_appr[ap] + (1 / b.vca) * (
                                 b.vca
