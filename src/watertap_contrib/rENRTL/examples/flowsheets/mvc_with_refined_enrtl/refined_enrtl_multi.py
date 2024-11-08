@@ -386,7 +386,7 @@ class rENRTL(Ideal):
                 )
 
         # Convert molar density to mass units (kg/m³) as a Pyomo
-        # Expression. This density is used to calculate 
+        # Expression. This density is used to calculate
         # vol_mol_solvent (Vt) and vol_mol_solution (Vi).
         def rule_dens_mass(b):
             if len(b.params.solvent_set) == 1:
@@ -896,7 +896,7 @@ class rENRTL(Ideal):
         # This equation excludes the Born correction.
         # This term derives from the partial differentiation of A in Eqn 1 of ref [3],
         # expressed as dA/dN + dA/dV * Vi, where Vi is the partial volume of the same species as N.
-        
+
         def rule_log_gamma_pdh(b, j):
             tau2 = getattr(b, pname + "_tau2")
             A = getattr(b, pname + "_A_DH")
@@ -1401,7 +1401,7 @@ class rENRTL(Ideal):
             return b.G_ij_ij
 
         _calculate_G(b)
-        
+
         # Local contribution to activity coefficient
         def rule_log_gamma_lc_I(b, s):
             X = getattr(b, pname + "_X")

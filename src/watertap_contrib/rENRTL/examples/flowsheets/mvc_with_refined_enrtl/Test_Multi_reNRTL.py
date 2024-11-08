@@ -256,7 +256,7 @@ configuration = {
         },
         # hydration_number: Table 2 in ref [1]
         # ionic_radius: Table 1 in ref [3]
-        # partial_vol_mol: Table 5.8 in ref [2] 
+        # partial_vol_mol: Table 5.8 in ref [2]
         "Na+": {
             "type": Cation,
             "charge": "+1",
@@ -347,7 +347,7 @@ class Test_reNRTL_Multi(object):
 
     @pytest.fixture(scope="class")
     def ExpData(self):
-        f = open("mA_mB_gammaA.txt", "r") #ref [4]
+        f = open("mA_mB_gammaA.txt", "r")  # ref [4]
         data = f.readlines()
         f.close()
         gamma = [0 for i in range(40)]
@@ -554,8 +554,8 @@ class Test_reNRTL_Multi(object):
     @pytest.mark.unit
     def test_Log_Mean_Gamma(self, Retrieve_All_Properties):
         Properties = Retrieve_All_Properties
-        
-        #ref [5]
+
+        # ref [5]
         gamma1ref = [
             0.7777209890681371,
             0.7757400402048191,
@@ -598,8 +598,8 @@ class Test_reNRTL_Multi(object):
             0.6305386446221195,
             0.5053631731313195,
         ]
-        
-        #ref [5]
+
+        # ref [5]
         gamma2ref = [
             0.7789684994052755,
             0.7347222036888417,
@@ -648,7 +648,7 @@ class Test_reNRTL_Multi(object):
     @pytest.mark.LR
     def test_PDH(self, Retrieve_All_Properties):
         Properties = Retrieve_All_Properties
-        #ref [5]
+        # ref [5]
         PDHref = [
             [-2.56204364e-01, -2.55759637e-01, -1.02402063e00, 2.52941789e-04],
             [-2.56721802e-01, -2.56275554e-01, -1.02608748e00, 2.53783167e-04],
@@ -696,7 +696,7 @@ class Test_reNRTL_Multi(object):
     @pytest.mark.SR
     def test_SR(self, Retrieve_All_Properties):
         Properties = Retrieve_All_Properties
-        #ref [5]
+        # ref [5]
         SRref = [
             [9.48654053e-04, 9.48654053e-04, -4.47929587e-02, -1.81422722e-06],
             [-2.19125748e-03, 8.51415639e-04, -4.03433449e-02, 3.56348883e-06],
@@ -744,7 +744,7 @@ class Test_reNRTL_Multi(object):
     @pytest.mark.SR
     def test_SR_inf(self, Retrieve_All_Properties):
         Properties = Retrieve_All_Properties
-        #ref [5]
+        # ref [5]
         SR_infref = [
             [-0.88722743, -0.88722743, 3.49919861, 0.0],
             [-0.697715, -1.07627478, 3.10808602, 0.0],
@@ -792,7 +792,7 @@ class Test_reNRTL_Multi(object):
     @pytest.mark.SR
     def test_tau_maca(self, Retrieve_All_Properties):
         Properties = Retrieve_All_Properties
-        #ref [5]
+        # ref [5]
         tau_macaref = [
             [7.951, 7.578],
             [7.951, 7.578],
@@ -840,7 +840,7 @@ class Test_reNRTL_Multi(object):
     @pytest.mark.SR
     def test_tau_mcac(self, Retrieve_All_Properties):
         Properties = Retrieve_All_Properties
-        #ref [5]
+        # ref [5]
         tau_mcacref = [
             [7.951, 7.126],
             [8.01312313, 7.18812313],
@@ -888,7 +888,7 @@ class Test_reNRTL_Multi(object):
     @pytest.mark.SR
     def test_n(self, Retrieve_All_Properties):
         Properties = Retrieve_All_Properties
-        #ref [5]
+        # ref [5]
         nref = [
             [1.00000000e-01, 1.00000000e-01, 0.00000000e00, 5.52990600e01],
             [9.33333340e-02, 8.00000000e-02, 6.66666700e-03, 5.53211813e01],
@@ -936,7 +936,7 @@ class Test_reNRTL_Multi(object):
     @pytest.mark.SR
     def test_X(self, Retrieve_All_Properties):
         Properties = Retrieve_All_Properties
-        #ref [5]
+        # ref [5]
         Xref = [
             [1.80183232e-03, 1.80183232e-03, 0.00000000e00, 9.96396335e-01],
             [1.68164590e-03, 1.44141076e-03, 2.40235139e-04, 9.96756826e-01],
@@ -984,7 +984,7 @@ class Test_reNRTL_Multi(object):
     @pytest.mark.SR
     def test_Y(self, Retrieve_All_Properties):
         Properties = Retrieve_All_Properties
-        #ref [5]
+        # ref [5]
         Yref = [
             [1.0, 1.0, 0.0, 0.0],
             [1.0, 0.85714285, 0.14285715, 0.0],
@@ -1032,7 +1032,7 @@ class Test_reNRTL_Multi(object):
     @pytest.mark.LR
     def test_IX(self, Retrieve_All_Properties):
         Properties = Retrieve_All_Properties
-        #ref [5]
+        # ref [5]
         IXref = [
             99.54943328164065,
             99.57479877613014,
@@ -1080,7 +1080,7 @@ class Test_reNRTL_Multi(object):
     @pytest.mark.LR
     def test_Vt(self, Retrieve_All_Properties):
         Properties = Retrieve_All_Properties
-        #ref [5]
+        # ref [5]
         Vtref = [
             0.0010045260601040755,
             0.0010042701790924614,
@@ -1128,7 +1128,7 @@ class Test_reNRTL_Multi(object):
     @pytest.mark.LR
     def test_aravg(self, Retrieve_All_Properties):
         Properties = Retrieve_All_Properties
-        #ref [5]
+        # ref [5]
         aravgref = [
             4.2879932127265835e-10,
             4.261154088315522e-10,
@@ -1176,7 +1176,7 @@ class Test_reNRTL_Multi(object):
     @pytest.mark.LR
     def test_b(self, Retrieve_All_Properties):
         Properties = Retrieve_All_Properties
-        #ref [5]
+        # ref [5]
         bref = [
             103925446.29701309,
             103925446.29701309,
@@ -1224,7 +1224,7 @@ class Test_reNRTL_Multi(object):
     @pytest.mark.LR
     def test_AX(self, Retrieve_All_Properties):
         Properties = Retrieve_All_Properties
-        #ref [5]
+        # ref [5]
         AXref = [
             0.03708044495436347,
             0.03708044495436347,
@@ -1272,7 +1272,7 @@ class Test_reNRTL_Multi(object):
     @pytest.mark.LR
     def test_kappa(self, Retrieve_All_Properties):
         Properties = Retrieve_All_Properties
-        #ref [5]
+        # ref [5]
         kapparef = [
             10369.105524045906,
             10370.426479515387,
@@ -1320,7 +1320,7 @@ class Test_reNRTL_Multi(object):
     @pytest.mark.LR
     def test_Vo(self, Retrieve_All_Properties):
         Properties = Retrieve_All_Properties
-        #ref [5]
+        # ref [5]
         Voref = [
             [9.76199248e-06, 3.31570222e-05, 5.83947888e-05, 0.00000000e00],
             [9.76199248e-06, 3.31570222e-05, 5.83947888e-05, 0.00000000e00],
@@ -1368,7 +1368,7 @@ class Test_reNRTL_Multi(object):
     @pytest.mark.LR
     def test_Vq(self, Retrieve_All_Properties):
         Properties = Retrieve_All_Properties
-        #ref [5]
+        # ref [5]
         Vqref = [
             [-7.60e-06, 2.42e-05, 2.68e-05, 0.00e00],
             [-7.60e-06, 2.42e-05, 2.68e-05, 0.00e00],
