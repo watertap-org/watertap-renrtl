@@ -534,7 +534,6 @@ class rENRTL(Ideal):
         # Long-range terms
         # Eqn 22 from ref 6
         def rule_Vo(b, i):
-
             b.ionic_radius_m = pyo.units.convert(
                 b.ionic_radius[i], to_units=pyo.units.m
             )
@@ -661,7 +660,6 @@ class rENRTL(Ideal):
 
         # Ionic Strength
         def rule_I(b):
-
             v = getattr(b, pname + "_vol_mol_solvent")
             n = getattr(b, pname + "_n")
 
@@ -713,7 +711,6 @@ class rENRTL(Ideal):
         # Distance of Closest Approach (m)
         # Eqn 12 from ref [3]
         def rule_ar(b):
-
             b.distance_species = pyo.Param(
                 initialize=1.9277,
                 mutable=False,
@@ -765,7 +762,6 @@ class rENRTL(Ideal):
         b.b_term = pyo.Expression(rule=rule_b_term)
 
         def rule_A_DH(b):
-
             eps = getattr(b, pname + "_relative_permittivity_solvent")
             eps0 = Constants.vacuum_electric_permittivity
             ar = getattr(b, pname + "_ar")

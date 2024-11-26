@@ -449,7 +449,6 @@ def add_bounds(m):
 
 
 def print_results(m):
-
     m.fs.compressor.report()
 
     for i in m.fs.set_evaporators:
@@ -592,7 +591,6 @@ def unfix_dofs(m):
 
 
 def model_analysis(m, water_rec=None):
-
     # Unfix degrees of freedom that were fixed during initialization
     unfix_dofs(m)
 
@@ -691,7 +689,6 @@ def model_analysis(m, water_rec=None):
 
 
 def plot_results(m):
-
     plt.figure(1)
     plt.grid(linestyle=":", which="both", color="gray", alpha=0.50)
     plt.plot(
@@ -712,7 +709,6 @@ def plot_results(m):
 
 
 if __name__ == "__main__":
-
     optarg = {"max_iter": 300, "tol": 1e-8}
     solver = get_solver("ipopt", optarg)
 

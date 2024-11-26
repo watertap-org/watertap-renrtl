@@ -356,7 +356,6 @@ def initialize(m, solver=None, outlvl=idaeslog.NOTSET):
 
 
 def print_results(m):
-
     m.fs.molal_conc_solute_feed = (
         value(m.fs.evaporator.inlet_feed.flow_mass_phase_comp[0, "Liq", "TDS"])
         / value(m.fs.properties_feed.mw_comp["TDS"])
@@ -464,7 +463,6 @@ def print_evap_table(m):
 
 
 def model_analysis(m):
-
     # Unfix data that was fixed during initialization
     m.fs.evaporator.area.unfix()
     m.fs.evaporator.U.unfix()
@@ -567,7 +565,6 @@ def model_analysis(m):
 
 
 if __name__ == "__main__":
-
     optarg = {"max_iter": 300, "tol": 1e-8}
     solver = get_solver("ipopt", optarg)
 
