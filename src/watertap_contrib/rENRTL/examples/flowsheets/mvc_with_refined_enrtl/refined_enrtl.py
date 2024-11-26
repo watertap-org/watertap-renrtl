@@ -10,11 +10,11 @@
 # All rights reserved.  Please see the files COPYRIGHT.md and LICENSE.md
 # for full copyright and license information.
 #
-# Copyright 2023, National Technology & Engineering Solutions of Sandia,
+# Copyright 2023-2024, National Technology & Engineering Solutions of Sandia,
 # LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the
 # U.S. Government retains certain rights in this software
 #
-# Copyright 2023, Pengfei Xu and Matthew D. Stuber and the University
+# Copyright 2023-2024, Pengfei Xu and Matthew D. Stuber and the University
 # of Connecticut.
 #
 # Please see the files COPYRIGHT.md and LICENSE.md for full copyright and
