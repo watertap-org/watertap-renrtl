@@ -1,15 +1,15 @@
 ###############################################################################
-# WaterTAP Copyright (c) 2020-2023, The Regents of the University of California,
+# WaterTAP Copyright (c) 2020-2024, The Regents of the University of California,
 # through Lawrence Berkeley National Laboratory, Oak Ridge National Laboratory,
 # National Renewable Energy Laboratory, and National Energy Technology
 # Laboratory (subject to receipt of any required approvals from the U.S. Dept.
 # of Energy). All rights reserved.
 #
-# Copyright 2023, National Technology & Engineering Solutions of Sandia,
+# Copyright 2023-2024, National Technology & Engineering Solutions of Sandia,
 # LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the
 # U.S. Government retains certain rights in this software.
 #
-# Copyright 2023, Pengfei Xu and Matthew D. Stuber and the University
+# Copyright 2023-2024, Pengfei Xu and Matthew D. Stuber and the University
 # of Connecticut.
 #
 # Please see the files COPYRIGHT.md and LICENSE.md for full copyright and license
