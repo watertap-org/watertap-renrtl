@@ -345,22 +345,6 @@ class Test_reNRTL_Multi(object):
 
         return m
 
-    # @pytest.fixture(scope="class")
-    # def ExpData(self):
-    #     f = open("mA_mB_gammaA.txt", "r") #ref [4]
-    #     data = f.readlines()
-    #     f.close()
-    #     gamma = [0 for i in range(40)]
-    #     ninCA1 = [0 for i in range(40)]
-    #     ninCA2 = [0 for i in range(40)]
-    #     for line in data:
-    #         l = line.strip().split()
-    #         elec_name = l[0].split(".")
-    #         gamma[int(elec_name[3]) - 1] = float(l[3])
-    #         ninCA1[int(elec_name[3]) - 1] = float(l[1])
-    #         ninCA2[int(elec_name[3]) - 1] = float(l[2])
-    #     return ninCA1, ninCA2, gamma
-
     @pytest.fixture(scope="class")
     def ExpData(self):
         # ref [4]
