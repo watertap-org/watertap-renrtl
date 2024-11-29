@@ -713,7 +713,7 @@ class rENRTL(Ideal):
         def rule_ar(b):
             b.distance_species = pyo.Param(
                 initialize=1.9277,
-                mutable=False,
+                mutable=True,
                 units=pyunits.angstrom,
                 doc="Distance between a solute and solvent",
             )

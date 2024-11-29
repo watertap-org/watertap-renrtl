@@ -313,7 +313,7 @@ def set_model_inputs(m):
     m.fs.evaporator.area.fix(1000)  # m^2
 
     # Compressor
-    m.fs.compressor.pressure_ratio = 2
+    m.fs.compressor.pressure_ratio = 1.7
     m.fs.compressor.control_volume.work.fix(2e5)
     m.fs.compressor.efficiency.fix(0.8)
 
