@@ -1,15 +1,15 @@
 ###############################################################################
-# WaterTAP Copyright (c) 2020-2023, The Regents of the University of California,
+# WaterTAP Copyright (c) 2020-2024, The Regents of the University of California,
 # through Lawrence Berkeley National Laboratory, Oak Ridge National Laboratory,
 # National Renewable Energy Laboratory, and National Energy Technology
 # Laboratory (subject to receipt of any required approvals from the U.S. Dept.
 # of Energy). All rights reserved.
 #
-# Copyright 2023, National Technology & Engineering Solutions of Sandia,
+# Copyright 2023-2024, National Technology & Engineering Solutions of Sandia,
 # LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the
 # U.S. Government retains certain rights in this software
 #
-# Copyright 2023, Pengfei Xu and Matthew D. Stuber and the University
+# Copyright 2023-2024, Pengfei Xu and Matthew D. Stuber and the University
 # of Connecticut.
 #
 # Please see the files COPYRIGHT.md and LICENSE.md for full copyright and license
@@ -313,7 +313,7 @@ def set_model_inputs(m):
     m.fs.evaporator.area.fix(1000)  # m^2
 
     # Compressor
-    m.fs.compressor.pressure_ratio = 2
+    m.fs.compressor.pressure_ratio = 1.7
     m.fs.compressor.control_volume.work.fix(2e5)
     m.fs.compressor.efficiency.fix(0.8)
 
@@ -356,7 +356,6 @@ def initialize(m, solver=None, outlvl=idaeslog.NOTSET):
 
 
 def print_results(m):
-
     m.fs.molal_conc_solute_feed = (
         value(m.fs.evaporator.inlet_feed.flow_mass_phase_comp[0, "Liq", "TDS"])
         / value(m.fs.properties_feed.mw_comp["TDS"])
@@ -464,7 +463,6 @@ def print_evap_table(m):
 
 
 def model_analysis(m):
-
     # Unfix data that was fixed during initialization
     m.fs.evaporator.area.unfix()
     m.fs.evaporator.U.unfix()
@@ -567,7 +565,6 @@ def model_analysis(m):
 
 
 if __name__ == "__main__":
-
     optarg = {"max_iter": 300, "tol": 1e-8}
     solver = get_solver("ipopt", optarg)
 

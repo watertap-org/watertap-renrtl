@@ -7,30 +7,30 @@
 # University of California, through Lawrence Berkeley National Laboratory,
 # National Technology & Engineering Solutions of Sandia, LLC, Carnegie Mellon
 # University, West Virginia University Research Corporation, et al.
-# All rights reserved.  Please see the files COPYRIGHT.md and LICENSE.md
+# All rights reserved. Please see the files COPYRIGHT.md and LICENSE.md
 # for full copyright and license information.
 #
 # Copyright 2023-2024, National Technology & Engineering Solutions of Sandia,
 # LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the
-# U.S. Government retains certain rights in this software
+# U.S. Government retains certain rights in this software.
 #
-# Copyright 2023-2024, Pengfei Xu and Matthew D. Stuber and the University
+# Copyright 2023-2024, Pengfei Xu, Matthew D. Stuber, and the University
 # of Connecticut.
 #
 # Please see the files COPYRIGHT.md and LICENSE.md for full copyright and
 # license information.
 #################################################################################
 
-"""Model for refined ENRTL activity coefficient method using an
-unsymmetrical reference state. This model is only applicable to
-liquid/electrolyte phases with a single solvent and single
-electrolyte.
+"""
+Model for the multi-electrolyte refined Electrolyte Nonrandom Two-Liquid (r-eNRTL) activity coefficient method. 
+If you need further assistance to model multi-electrolyte solutions, please contact the author 
+at pengfei.xu@uconn.edu.
 
-This method is a modified version of the IDAES ENRTL activity
-coefficient method, authored by Andrew Lee in collaboration with
-C.-C. Chen and can be found in the link below:
-https://github.com/IDAES/idaes-pse/blob/main/idaes/models/properties/modular_properties/eos/enrtl.py
+This method extends the single-electrolyte refined eNRTL (single r-eNRTL) approach to multi-electrolyte solutions. 
+Refer to the page of the single r-eNRTL for detailed information: 
+https://github.com/watertap-org/watertap-renrtl/blob/main/src/watertap_contrib/rENRTL/examples/flowsheets/mvc_with_refined_enrtl/refined_enrtl.py.
 
+#############################################################################
 References:
 [1] Song, Y. and Chen, C.-C., Symmetric Electrolyte Nonrandom
 Two-Liquid Activity Coefficient Model, Ind. Eng. Chem. Res., 2009,
@@ -40,32 +40,41 @@ Vol. 48, pgs. 7788–7797
 Electrolyte-NRTL Model: Activity Coefficient Expressions for
 Application to Multi-Electrolyte Systems. AIChE J., 2008, 54,
 1608-1624
+                                                                           
+[3] Xi Yang, Paul I. Barton, and George M. Bollas, Refined                 
+electrolyte-NRTL model: Inclusion of hydration for the detailed            
+description of electrolyte solutions. Part I: Single electrolytes up       
+to moderate concentrations, single salts up to solubility limit.           
 
-[3] Xi Yang, Paul I. Barton, and George M. Bollas, Refined
-electrolyte-NRTL model: Inclusion of hydration for the detailed
-description of electrolyte solutions. Part I: Single electrolytes up
-to moderate concentrations, single salts up to solubility limit.
+*KEY LITERATURE[3].
+*This source contains the primary parameter values and equations.
 
 [4] Y. Marcus, Ion solvation, Wiley-Interscience, New York, 1985.
 
-[5] X. Yang, P. I. Barton, G. M. Bollas, The significance of
-frameworks in electrolyte thermodynamic model development. Fluid Phase
-Equilib., 2019
+[5] E. Glueckauf, Molar volumes of ions, Trans. Faraday Soc. 61 (1965).
 
-[6] E. Glueckauf, Molar volumes of ions, Trans. Faraday Soc. 61 (1965).
+[6] Clegg, Simon L., and Kenneth S. Pitzer. "Thermodynamics of multicomponent,
+miscible, ionic solutions: generalized equations for symmetrical electrolytes."
+The Journal of Physical Chemistry 96, no. 8 (1992): 3513-3520.
 
-[7] Chen, Chau‐Chyun, Herbert I. Britt, J. F. Boston, and L. B. Evans. 
-"Local composition model for excess Gibbs energy of electrolyte systems. 
-Part I: Single solvent, single completely dissociated electrolyte systems."
-AIChE Journal 28, no. 4 (1982): 588-596.
+[7] Maribo-Mogensen, B., Kontogeorgis, G. M., & Thomsen, K. (2012). Comparison 
+of the Debye–Hückel and the Mean Spherical Approximation Theories for 
+Electrolyte Solutions. Industrial & engineering chemistry 
+research, 51(14), 5353-5363.
 
+[8] Braus, M. (2019). The theory of electrolytes. I. Freezing point depression 
+and related phenomena (Translation).
 
-Note that "charge number" in the paper [1] refers to the absolute value
+[9] Robinson, R. A., & Stokes, R. H. (2002). Electrolyte solutions. Courier Corporation.
+
+Note that The term "charge number" in ref [1] denotes the absolute value
 of the ionic charge.
 
-Author: Soraya Rawlings in collaboration with Pengfei Xu, Wajeha
-Tauqir, and Xi Yang from University of Connecticut
+Author: Pengfei Xu (University of Connecticut), Soraya Rawlings (Sandia) ,and Wajeha
+Tauqir (University of Connecticut).
 
+Data and model contributions by Prof. George M. Bollas and his research
+group at the University of Connecticut.
 """
 
 import pyomo.environ as pyo
@@ -106,12 +115,12 @@ DefaultTauRule = ConstantTau
 
 
 class rENRTL(Ideal):
-    # Add attribute indicating support for electrolyte systems
+    # Attribute indicating support for electrolyte systems.
     electrolyte_support = True
 
     @staticmethod
     def build_parameters(b):
-        # Build additional indexing sets
+        # Build additional indexing sets for component interactions.
         pblock = b.parent_block()
         ion_pair = []
         for i in pblock.cation_set:
@@ -132,7 +141,7 @@ class rENRTL(Ideal):
         b.component_pair_set = Set(initialize=comp_pairs)
         b.component_pair_set_symmetric = Set(initialize=comp_pairs_sym)
 
-        # Check options for alpha rule
+        # Check and apply configuration for alpha rule.
         if (
             b.config.equation_of_state_options is not None
             and "alpha_rule" in b.config.equation_of_state_options
@@ -141,7 +150,7 @@ class rENRTL(Ideal):
         else:
             DefaultAlphaRule.build_parameters(b)
 
-        # Check options for tau rule
+        # Check and apply configuration for tau rule.
         if (
             b.config.equation_of_state_options is not None
             and "tau_rule" in b.config.equation_of_state_options
@@ -180,7 +189,7 @@ class rENRTL(Ideal):
 
         # ---------------------------------------------------------------------
 
-        # Create a list that includes the apparent species with
+        # Generate a list of apparent species that have
         # dissociation species.
         b.apparent_dissociation_species_list = []
         for a in b.params.apparent_species_set:
@@ -190,9 +199,6 @@ class rENRTL(Ideal):
             initialize=b.apparent_dissociation_species_list,
             doc="Set of apparent dissociated species",
         )
-        assert (
-            len(b.apparent_dissociation_species_set) == 1
-        ), "This model does not support more than one electrolyte."
 
         # Set hydration model from configuration dictionary and make
         # sure that both ions have all the parameters needed for each
@@ -213,6 +219,7 @@ class rENRTL(Ideal):
                         "hydration_constant", app
                     )
                 )
+        # Essential parameters for constant hydration model
         params_for_constant_hydration = [
             "hydration_number",
             "ionic_radius",
@@ -228,38 +235,21 @@ class rENRTL(Ideal):
                                 k, ion
                             )
                         )
-        elif b.params.config.parameter_data["hydration_model"] == "stepwise_hydration":
-            b.constant_hydration = False
-            params_for_stepwise_hydration = [
-                "hydration_number",
-                "ionic_radius",
-                "partial_vol_mol",
-                "min_hydration_number",
-                "number_sites",
-            ]
-            for ion in b.params.ion_set:
-                for k in params_for_stepwise_hydration:
-                    if k not in b.params.config.components[ion]["parameter_data"]:
-                        raise BurntToast(
-                            "Missing '{}' parameter for {}. Please, include this parameter to the configuration dictionary to be able to use the stepwise hydration model.".format(
-                                k, ion
-                            )
-                        )
         else:
             raise BurntToast(
-                "'{}' is not a hydration model included in the refined eNRTL, but try again using one of the supported models: 'constant_hydration' or 'stepwise_hydration'".format(
+                "'{}' is not a hydration model included in the multi-electrolyte refined eNRTL, but try again using 'constant_hydration'".format(
                     b.params.config.parameter_data["hydration_model"]
                 )
             )
 
-        # Declare electrolyte and ions parameters in the configuration
-        # dictionary in 'parameter_data' as Pyomo variables 'Var' with
-        # fixed values and default units given in the 'units_dict'
-        # below. First, a default set of units is declared followed by
-        # an assertion to make sure the parameters given in the
-        # configuration dictionary are the same as the ones given in
-        # the default 'units_dict'. Note: If the units are provided in
-        # the config dict, units should be provided as the second term
+        # Declare electrolyte and ion parameters from 'parameter_data' in the configuration
+        # dictionary as Pyomo variables 'Var' with
+        # fixed values and default units from 'units_dict'
+        # below. A default set of units is provided, followed by
+        # an assertion to ensure the parameters given in the
+        # configuration dictionary match those in
+        # the default 'units_dict'. Note: If the units are specified in
+        # the config dict, they should be provided as the second element
         # in a tuple (value_of_parameter, units).
         units_dict = {
             "beta": pyunits.dimensionless,
@@ -309,17 +299,20 @@ class rENRTL(Ideal):
         # Add parameters for apparent species with dissociation
         # species as Pyomo variables 'Var' with fixed values and
         # default units. For now, it only includes the hydration
-        # constant for electrolyte.
+        # constant for each electrolyte.
+
         for ap in b.apparent_dissociation_species_set:
             for i in b.params.config.components[ap]["parameter_data"].keys():
-                b.add_component(
-                    i,
-                    pyo.Var(
-                        b.apparent_dissociation_species_set,
-                        units=units_dict[i],
-                        doc=f"{i} parameter [{units_dict[i]}]",
-                    ),
-                )
+                if i == "hydration_constant":
+                    name_h = i
+        b.add_component(
+            name_h,
+            pyo.Var(
+                b.apparent_dissociation_species_set,
+                units=units_dict[name_h],
+                doc=f"{name_h} parameter [{units_dict[name_h]}]",
+            ),
+        )
 
         for ap in b.apparent_dissociation_species_set:
             for i in b.params.config.components[ap]["parameter_data"].keys():
@@ -329,91 +322,75 @@ class rENRTL(Ideal):
                 else:
                     getattr(b, i)[ap].fix(bdata * units_dict[i])
 
-        # Declare dictionary for stoichiometric coefficient using data
+        # Declare a dictionary for stoichiometric coefficient using data
         # from configuration dictionary.
+
         b.stoichiometric_coeff = {}
-        if len(b.apparent_dissociation_species_set) == 1:
-            a = b.apparent_dissociation_species_set.first()
-            for i in b.params.config.components[a]["dissociation_species"]:
-                b.stoichiometric_coeff[i] = (
-                    b.params.config.components[a]["dissociation_species"].get(i, [])
+        for ap in b.apparent_dissociation_species_set:
+            for i in b.params.config.components[ap]["dissociation_species"]:
+                b.stoichiometric_coeff[i, ap] = (
+                    b.params.config.components[ap]["dissociation_species"].get(i, [])
                     * pyunits.dimensionless
                 )
 
-        # Add beta constant, which represents the radius of
-        # electrostricted water in the hydration shell of ions and it
-        # is specific to the type of electrolyte.
-        # Beta is a parameter determined by the charge of the ion pairs, like NaCl is 1-1, Na2SO4 is 1-2
-        # Beta is obtained using parameter estimation by Xi Yang ref[3] (page 35 values multiplied by 5.187529),
-        # original data used for parameter estimation are from ref[4].
+        # Add the beta constant, representing the radius of
+        # electrostricted water in the hydration shell of ions,
+        # which is specific to each electrolyte type.
+        # Beta is determined by the charge of ion pairs (e.g., 1-1 for NaCl, 1-2 for Na2SO4).
+        # Beta values are estimated following Xi Yang's method ref [3] (page 35, values multiplied by 5.187529);
+        # original data used for parameter estimation are in ref [9].
         b.add_component(
             "beta",
             pyo.Var(
+                b.apparent_dissociation_species_set,
                 units=units_dict["beta"],
                 doc="{} parameter [{}]".format("beta", units_dict["beta"]),
             ),
         )
-        if len(b.params.cation_set) == 1:
-            c = b.params.cation_set.first()
-            if len(b.params.anion_set) == 1:
-                a = b.params.anion_set.first()
-            if (abs(cobj(b, c).config.charge) == 1) and (
-                abs(cobj(b, a).config.charge) == 1
+
+        c_dict = {}
+        a_dict = {}
+        for ap in b.apparent_dissociation_species_set:
+            for i in b.params.config.components[ap]["dissociation_species"]:
+                if i in b.params.cation_set:
+                    c_dict[ap] = i
+                elif i in b.params.anion_set:
+                    a_dict[ap] = i
+
+        for ap in b.apparent_dissociation_species_set:
+            if (abs(cobj(b, c_dict[ap]).config.charge) == 1) and (
+                abs(cobj(b, a_dict[ap]).config.charge) == 1
             ):
-                b.beta.fix(0.9695492)
-            elif (abs(cobj(b, c).config.charge) == 2) and (
-                abs(cobj(b, a).config.charge) == 1
+                b.beta[ap].fix(0.9695492)
+            elif (abs(cobj(b, c_dict[ap]).config.charge) == 2) and (
+                abs(cobj(b, a_dict[ap]).config.charge) == 1
             ):
-                b.beta.fix(0.9192301707)
-            elif (abs(cobj(b, c).config.charge) == 1) and (
-                abs(cobj(b, a).config.charge) == 2
+                b.beta[ap].fix(0.9192301707)
+            elif (abs(cobj(b, c_dict[ap]).config.charge) == 1) and (
+                abs(cobj(b, a_dict[ap]).config.charge) == 2
             ):
-                b.beta.fix(0.8144420812)
-            elif (abs(cobj(b, c).config.charge) == 2) and (
-                abs(cobj(b, a).config.charge) == 2
+                b.beta[ap].fix(0.8144420812)
+            elif (abs(cobj(b, c_dict[ap]).config.charge) == 2) and (
+                abs(cobj(b, a_dict[ap]).config.charge) == 2
             ):
-                b.beta.fix(0.1245007)
-            elif (abs(cobj(b, c).config.charge) == 3) and (
-                abs(cobj(b, a).config.charge) == 1
+                b.beta[ap].fix(0.1245007)
+            elif (abs(cobj(b, c_dict[ap]).config.charge) == 3) and (
+                abs(cobj(b, a_dict[ap]).config.charge) == 1
             ):
-                b.beta.fix(0.7392229)
+                b.beta[ap].fix(0.7392229)
             else:
                 raise BurntToast(
-                    f"'beta' constant not known for system with cation with charge +{cobj(b, c).config.charge} and anion with charge {cobj(b, a).config.charge}. Please contact the development team if you are interested in solving a case not supported by this method.".format(
+                    f"'beta' constant not known for system with cation with charge +{cobj(b, c_dict[ap]).config.charge} and anion with charge {cobj(b, a_dict[ap]).config.charge}. Please contact the development team if you are interested in solving a case not supported by this method.".format(
                         app
                     )
                 )
 
-                print()
-
-        # Declare the (a) total stoichiometric coefficient for
-        # electrolyte and the (b) total hydration number as Pyomo
-        # parameters 'Param'. The 'total_hydration_init' is used in
-        # the constant hydration model and as an initial value in the
-        # stepwise hydration model.
-        b.vca = pyo.Param(
-            initialize=(sum(b.stoichiometric_coeff[j] for j in b.params.ion_set)),
-            units=pyunits.dimensionless,
-            doc="Total stoichiometric coefficient for electrolyte [dimensionless]",
-        )
-        b.total_hydration_init = pyo.Param(
-            initialize=(
-                sum(
-                    b.stoichiometric_coeff[i] * b.hydration_number[i]
-                    for i in b.params.ion_set
-                )
-            ),
-            units=pyunits.dimensionless,
-            doc="Initial total hydration number [dimensionless]",
-        )
-
-        # Convert given molar density to mass units (kg/m3) as a Pyomo
-        # Expression. This density is needed in the calculation of
+        # Convert molar density to mass units (kg/m³) as a Pyomo
+        # Expression. This density is used to calculate
         # vol_mol_solvent (Vt) and vol_mol_solution (Vi).
         def rule_dens_mass(b):
             if len(b.params.solvent_set) == 1:
                 s = b.params.solvent_set.first()
-
                 return (
                     get_method(b, "dens_mol_liq_comp", s)(b, cobj(b, s), b.temperature)
                     * b.params.get_component(s).mw
@@ -428,38 +405,15 @@ class rENRTL(Ideal):
 
         # ---------------------------------------------------------------------
 
-        # Add total hydration terms for each hydration model
+        # Add total hydration term as a variable so it can be
+        # calculated later
         if b.constant_hydration:
-            # In constant hydration model, the total hydration term is
-            # an Expression and it is equal to the total hydration
-            # parameter calculated using hydration numbers of ions.
-            def rule_constant_total_hydration(b):
-                return b.total_hydration_init
-
-            b.add_component(
-                pname + "_total_hydration",
-                pyo.Expression(
-                    rule=rule_constant_total_hydration,
-                    doc="Total hydration number [dimensionless]",
-                ),
-            )
-        else:
-            # In the stepwise hydration model, a Pyomo variable 'Var'
-            # is declared for the total hydration term and it is
-            # calculated using the equations in function
-            # 'rule_nonconstant_total_hydration_term' below. NOTES:
-            # Improve initial value and bounds for this variable.
-            if value(b.total_hydration_init) <= 0:
-                min_val = -1e3
-            else:
-                min_val = 1e-3
-
             b.add_component(
                 pname + "_total_hydration",
                 pyo.Var(
-                    bounds=(min_val, abs(b.total_hydration_init) * 1000),
-                    initialize=b.total_hydration_init,
-                    units=pyunits.dimensionless,
+                    bounds=(-1e3, 1e3),
+                    initialize=0.1,
+                    units=pyunits.mol / pyunits.s,
                     doc="Total hydration number [dimensionless]",
                 ),
             )
@@ -469,22 +423,12 @@ class rENRTL(Ideal):
 
             if len(b.params.solvent_set) == 1:
                 s = b.params.solvent_set.first()
-
                 if (pname, j) not in b.params.true_phase_component_set:
                     return Expression.Skip
                 elif j in b.params.cation_set or j in b.params.anion_set:
-                    return (
-                        b.stoichiometric_coeff[j] * b.flow_mol_phase_comp_true[pname, j]
-                    )
+                    return b.flow_mol_phase_comp_true[pname, j]
                 elif j in b.params.solvent_set:
-                    # NOTES: 'flow_mol' could be either of cation or
-                    # anion since we assume both flows are the same.
-                    if len(b.params.cation_set) == 1:
-                        c = b.params.cation_set.first()
-                        return (
-                            b.flow_mol_phase_comp_true[pname, j]
-                            - total_hydration * b.flow_mol_phase_comp_true[pname, c]
-                        )
+                    return b.flow_mol_phase_comp_true[pname, j] - total_hydration
 
         b.add_component(
             pname + "_n",
@@ -495,6 +439,22 @@ class rENRTL(Ideal):
             ),
         )
 
+        # Calculate total hydration value
+        if b.constant_hydration:
+
+            def rule_constant_total_hydration(b):
+                n = getattr(b, pname + "_n")
+                total_hydration = getattr(b, pname + "_total_hydration")
+
+                return total_hydration == (
+                    sum(b.hydration_number[i] * n[i] for i in b.params.ion_set)
+                )
+
+            b.add_component(
+                pname + "_constant_total_hydration_eq",
+                pyo.Constraint(rule=rule_constant_total_hydration),
+            )
+
         # Effective mol fraction X
         def rule_X(b, j):
             n = getattr(b, pname + "_n")
@@ -502,7 +462,7 @@ class rENRTL(Ideal):
                 z = abs(cobj(b, j).config.charge)
             else:
                 z = 1
-            return z * n[j] / sum(n[i] for i in b.params.true_species_set)
+            return z * n[j] / (sum(n[i] for i in b.params.true_species_set))
 
         b.add_component(
             pname + "_X",
@@ -521,9 +481,8 @@ class rENRTL(Ideal):
                 dom = b.params.cation_set
 
             X = getattr(b, pname + "_X")
-            return X[j] / sum(X[i] for i in dom)  # Eqns 36 and 37 from ref[1]
+            return X[j] / sum(X[i] for i in dom)  # Eqns 36 and 37 in ref [1]
             # Y is a charge ratio, and thus independent of x for symmetric state
-            # TODO: This may need to change for the unsymmetric state
 
         b.add_component(
             pname + "_Y",
@@ -532,7 +491,7 @@ class rENRTL(Ideal):
 
         # ---------------------------------------------------------------------
         # Long-range terms
-        # Eqn 22 from ref 6
+        # Eqn 2 in ref [5]
         def rule_Vo(b, i):
             b.ionic_radius_m = pyo.units.convert(
                 b.ionic_radius[i], to_units=pyo.units.m
@@ -541,6 +500,7 @@ class rENRTL(Ideal):
             b.emp_a_radius = pyo.units.convert(
                 0.55 * pyunits.angstrom, to_units=pyo.units.m
             )
+
             return (
                 (4 / 3)
                 * Constants.pi
@@ -571,33 +531,46 @@ class rENRTL(Ideal):
             ),
         )
 
-        def rule_Xp(b, e):
-            if len(b.params.solvent_set) == 1:
-                s = b.params.solvent_set.first()
+        def rule_Xpsum(b):
+            return sum(b.flow_mol_phase_comp_true[pname, e] for e in b.params.ion_set)
 
-                return (
-                    b.stoichiometric_coeff[e]
-                    * b.flow_mol_phase_comp_true[pname, e]
-                    / (
-                        b.flow_mol_phase_comp_true[pname, s]
-                        + b.vca * b.flow_mol_phase_comp_true[pname, e]
+        b.add_component(
+            pname + "_Xpsum",
+            pyo.Expression(
+                rule=rule_Xpsum,
+                doc="Summation of mole fraction at unhydrated level of ions [dimensionless]",
+            ),
+        )
+
+        def rule_Xp(b, e):
+            Xpsum = getattr(b, pname + "_Xpsum")
+
+            if (pname, e) not in b.params.true_phase_component_set:
+                return Expression.Skip
+            elif e in b.params.cation_set or e in b.params.anion_set:
+                if len(b.params.solvent_set) == 1:
+                    s = b.params.solvent_set.first()
+
+                    return b.flow_mol_phase_comp_true[pname, e] / (
+                        b.flow_mol_phase_comp_true[pname, s] + Xpsum
                     )
+            elif e in b.params.solvent_set:
+                return b.flow_mol_phase_comp_true[pname, e] / (
+                    b.flow_mol_phase_comp_true[pname, e] + Xpsum
                 )
 
         b.add_component(
             pname + "_Xp",
             pyo.Expression(
-                b.params.ion_set,
+                b.params.true_species_set,
                 rule=rule_Xp,
                 doc="Mole fraction at unhydrated level [dimensionless]",
             ),
         )
-        # Function to calculate Volume of Solution [m3], this function is a combination of Eqn 9 & 10 from ref [3]
 
-        # Average molar volume of solvent
+        # Eqn 1 & 5 in ref [7]. "rule_vol_mol_solvent" is used to calculate the total volume of solution.
         def rule_vol_mol_solvent(b):
-            # Equation from ref[3], page 14
-
+            n = getattr(b, pname + "_n")
             Vo = getattr(b, pname + "_Vo")
             Vq = getattr(b, pname + "_Vq")
             Xp = getattr(b, pname + "_Xp")
@@ -605,13 +578,27 @@ class rENRTL(Ideal):
 
             if len(b.params.solvent_set) == 1:
                 s = b.params.solvent_set.first()
-                return b.flow_mol_phase_comp_true[pname, s] * b.params.get_component(
-                    s
-                ).mw / dens_mass + sum(
-                    b.stoichiometric_coeff[e] * b.flow_mol_phase_comp_true[pname, e] *
-                    # Intrinsic molar volume from Eq. 10 in ref[3]
-                    (Vq[e] + (Vo[e] - Vq[e]) * sum(Xp[j] for j in b.params.ion_set))
-                    for e in b.params.ion_set
+                term0 = (
+                    b.flow_mol_phase_comp_true[pname, s]
+                    * b.params.get_component(s).mw
+                    / dens_mass
+                )
+                b.sumxc = sum(Xp[c] for c in b.params.cation_set)
+                b.sumxa = sum(Xp[a] for a in b.params.anion_set)
+                return (
+                    term0
+                    + sum(
+                        n[e] *
+                        # The term below is Eqn 5 in ref [7]
+                        (Vq[e] + (Vo[e] - Vq[e]) * (b.sumxc + b.sumxa))
+                        for e in b.params.cation_set
+                    )
+                    + sum(
+                        n[e] *
+                        # The term below is Eqn 5 in ref [7]
+                        (Vq[e] + (Vo[e] - Vq[e]) * (b.sumxc + b.sumxa))
+                        for e in b.params.anion_set
+                    )
                 )
 
         b.add_component(
@@ -621,8 +608,8 @@ class rENRTL(Ideal):
             ),
         )
 
-        # Partial molar volume of solution
-        # Partial Molar Volume of Solvent/Cation/Anion (m3/mol) derived from Eqn 10 & 11 from ref [3]
+        # Functions to calculate partial molar volumes
+        # Partial molar volume of solvent/cation/anion (m3/mol) derived from Eqn 10 & 11 in ref [3]
         def rule_vol_mol_solution(b, j):
             """This function calculates the partial molar volumes for ions and
             solvent needed in the refined eNRTL model
@@ -645,9 +632,26 @@ class rENRTL(Ideal):
                     )
                 )
             else:
-                return b.params.get_component(j).mw / dens_mass - sum(
-                    Xp[i] * (Vo[i] - Vq[i]) for i in b.params.ion_set
+                term0 = b.params.get_component(j).mw / dens_mass
+                term1 = sum(
+                    Xp[c]
+                    * (Vo[c] - Vq[c])
+                    * (
+                        sum(Xp[c] for c in b.params.cation_set)
+                        + sum(Xp[a] for a in b.params.anion_set)
+                    )
+                    for c in b.params.cation_set
                 )
+                term2 = sum(
+                    Xp[a]
+                    * (Vo[a] - Vq[a])
+                    * (
+                        sum(Xp[c] for c in b.params.cation_set)
+                        + sum(Xp[i] for i in b.params.anion_set)
+                    )
+                    for a in b.params.anion_set
+                )
+                return term0 - term1 - term2
 
         b.add_component(
             pname + "_vol_mol_solution",
@@ -658,20 +662,35 @@ class rENRTL(Ideal):
             ),
         )
 
-        # Ionic Strength
+        # Ionic strength.
+        # Function to calculate ionic strength in mole fraction scale (m3/mol)
+        # Eqn 39 in ref [6]
         def rule_I(b):
-            v = getattr(b, pname + "_vol_mol_solvent")
+            v = getattr(b, pname + "_vol_mol_solvent")  # Vt
             n = getattr(b, pname + "_n")
 
             return (
-                0.5
-                / v
+                # term1
+                (1 / v)
+                * 1
+                / sum(
+                    n[i] * abs(b.params.get_component(i).config.charge)
+                    for i in b.params.ion_set
+                )
+                # term2
                 * sum(
-                    n[c] *
-                    # zz or true ionic charge of components
-                    # (Pitzer's equation)
-                    (abs(b.params.get_component(c).config.charge) ** 2)
-                    for c in b.params.ion_set
+                    sum(
+                        n[c]
+                        * abs(b.params.get_component(c).config.charge)
+                        * n[a]
+                        * abs(b.params.get_component(a).config.charge)
+                        * (
+                            abs(b.params.get_component(c).config.charge)
+                            + abs(b.params.get_component(a).config.charge)
+                        )
+                        for c in b.params.cation_set
+                    )
+                    for a in b.params.anion_set
                 )
             )
 
@@ -681,7 +700,7 @@ class rENRTL(Ideal):
         )
 
         # Mean relative permitivity of solvent
-        def rule_eps_solvent(b):  # Eqn 78 from ref[1]
+        def rule_eps_solvent(b):  # Eqn 78 in ref [1]
             if len(b.params.solvent_set) == 1:
                 s = b.params.solvent_set.first()
                 return get_method(b, "relative_permittivity_liq_comp", s)(
@@ -704,106 +723,211 @@ class rENRTL(Ideal):
             pname + "_relative_permittivity_solvent",
             pyo.Expression(
                 rule=rule_eps_solvent,
-                doc="Mean relative permittivity  of solvent [dimensionless]",
+                doc="Mean relative permittivity of solvent [dimensionless]",
             ),
         )
 
+        b.distance_species = pyo.Param(
+            initialize=1.9277,
+            mutable=True,
+            units=pyunits.angstrom,
+            doc="Distance between a solute and solvent",
+        )
+
         # Distance of Closest Approach (m)
-        # Eqn 12 from ref [3]
-        def rule_ar(b):
-            b.distance_species = pyo.Param(
-                initialize=1.9277,
-                mutable=True,
-                units=pyunits.angstrom,
-                doc="Distance between a solute and solvent",
-            )
+        # Eqn 12 in ref [3]
+        def rule_ar(b, j):
             return pyo.units.convert(
                 sum(
                     (
-                        max(
-                            0,
-                            sum(value(b.hydration_number[i]) for i in b.params.ion_set)
-                            / 2,
+                        (
+                            max(
+                                0,
+                                sum(
+                                    value(b.hydration_number[i])
+                                    for i in b.params.ion_set
+                                    if i
+                                    in b.params.config.components[j][
+                                        "dissociation_species"
+                                    ]
+                                )
+                                / 2,
+                            )
+                            * (b.beta[j] * b.distance_species) ** 3
+                            + b.ionic_radius[i] ** 3
                         )
-                        * (b.beta * b.distance_species) ** 3
-                        + b.ionic_radius[i] ** 3
+                        ** (1 / 3)
                     )
-                    ** (1 / 3)
                     for i in b.params.ion_set
+                    if i in b.params.config.components[j]["dissociation_species"]
                 ),
                 to_units=pyunits.m,
             )
 
         b.add_component(
             pname + "_ar",
-            pyo.Expression(rule=rule_ar, doc="Distance of closest approach [m]"),
+            pyo.Expression(
+                b.apparent_dissociation_species_set,
+                rule=rule_ar,
+                doc="Distance of closest approach [m]",
+            ),
+        )
+
+        def rule_ar_avg(b):
+            ar = getattr(b, pname + "_ar")
+            n = getattr(b, pname + "_n")
+            denominator = sum(
+                sum(n[a] * n[c] for a in b.params.anion_set)
+                for c in b.params.cation_set
+            )
+
+            numerator = sum(
+                sum(
+                    sum(
+                        n[a] * n[c] * ar[j]
+                        for c in b.params.cation_set
+                        if c in b.params.config.components[j]["dissociation_species"]
+                    )
+                    for a in b.params.anion_set
+                    if a in b.params.config.components[j]["dissociation_species"]
+                )
+                for j in b.apparent_dissociation_species_set
+            )
+
+            return numerator / denominator
+
+        b.add_component(
+            pname + "_ar_avg",
+            pyo.Expression(
+                rule=rule_ar_avg,
+                doc="Average value of distances of closest approach [m]",
+            ),
         )
 
         # Functions to calculate parameters for long-range equations
         # b term
-        # ref[3] eq#[2] first line
-        # b_term = kappa*ar/I. The I term here is the ionic strength. kappa is from ref[3] eq+2 first line
-
+        # kappa is from first line of Eqn 2 in ref [3]
+        # 'get_b' formula: b = kappa*a_i /I. The I represents the ionic strength.
         def rule_b_term(b):
-            eps = getattr(b, pname + "_relative_permittivity_solvent")
-            eps0 = Constants.vacuum_electric_permittivity
-            ar = getattr(b, pname + "_ar")
+            eps = getattr(b, pname + "_relative_permittivity_solvent")  # EM
+            eps0 = Constants.vacuum_electric_permittivity  # E0
 
             return (
-                ar
-                * (
-                    2
-                    * Constants.faraday_constant**2
-                    / (eps0 * eps * Constants.gas_constant * b.temperature)
-                )
-                ** 0.5
-            )
+                2
+                * Constants.faraday_constant**2
+                / (eps0 * eps * Constants.gas_constant * b.temperature)
+            ) ** 0.5
 
         b.b_term = pyo.Expression(rule=rule_b_term)
 
+        # First line of Eqn 2 in ref [3]
+        def rule_kappa(b):
+            Ix = getattr(b, pname + "_ionic_strength")
+            eps = getattr(b, pname + "_relative_permittivity_solvent")
+            eps0 = Constants.vacuum_electric_permittivity
+            aravg = getattr(b, pname + "_ar_avg")
+            return (
+                (
+                    2
+                    * (Constants.faraday_constant**2)
+                    * Ix
+                    / (eps0 * eps * Constants.gas_constant * b.temperature)
+                )
+                ** 0.5
+            ) / 1e5
+
+        b.kappa = pyo.Expression(rule=rule_kappa)
+
+        # Eqn 33 in ref [8]
+        def rule_sigma(b):
+            aravg = getattr(b, pname + "_ar_avg")
+            return (
+                # term 1
+                3
+                / (b.kappa * 1e5 * aravg) ** 3
+                *
+                # term 2
+                (
+                    -2 * log(1 + b.kappa * 1e5 * aravg)
+                    + (1 + b.kappa * 1e5 * aravg)
+                    - 1 / (1 + b.kappa * 1e5 * aravg)
+                )
+            )
+
+        b.sigma = pyo.Expression(rule=rule_sigma)
+
+        # Eqn 27 in ref [8]
+        def rule_tau2(b):
+            aravg = getattr(b, pname + "_ar_avg")
+
+            return (
+                # term 1
+                (3 / (b.kappa * 1e5 * aravg) ** 3)
+                * (
+                    # term 2
+                    (log(1 + b.kappa * 1e5 * aravg))
+                    -
+                    # term 3
+                    (b.kappa * 1e5 * aravg)
+                    +
+                    # term 4
+                    (1 / 2 * (b.kappa * 1e5 * aravg) ** 2)
+                )
+            )
+
+        b.add_component(
+            pname + "_tau2",
+            pyo.Expression(rule=rule_tau2, doc="Newly calculated tau in PDH"),
+        )
+
+        # Eqn 1 in ref [3] The denominator of the term before the sum term, multiplied by 3
         def rule_A_DH(b):
             eps = getattr(b, pname + "_relative_permittivity_solvent")
             eps0 = Constants.vacuum_electric_permittivity
-            ar = getattr(b, pname + "_ar")
 
-            return (
-                1
-                / (16 * Constants.pi * Constants.avogadro_number)
-                * (b.b_term / ar) ** 3
-            )
+            return 1 / (16 * Constants.pi * Constants.avogadro_number) * b.b_term**3
 
         b.add_component(
             pname + "_A_DH",
             pyo.Expression(rule=rule_A_DH, doc="Debye-Huckel parameter"),
         )
 
-        # Long-range (PDH) contribution to activity coefficient. Eqn derived from ref[5].
+        # Long-range (PDH) contribution to activity coefficient.
+        # This equation excludes the Born correction.
+        # This term derives from the partial differentiation of A in Eqn 1 of ref [3],
+        # expressed as dA/dN + dA/dV * Vi, where Vi is the partial volume of the same species as N.
+
         def rule_log_gamma_pdh(b, j):
+            tau2 = getattr(b, pname + "_tau2")
             A = getattr(b, pname + "_A_DH")
             Ix = getattr(b, pname + "_ionic_strength")
-            v = getattr(b, pname + "_vol_mol_solution")
+            v = getattr(b, pname + "_vol_mol_solution")  # Vm and Vi
+            aravg = getattr(b, pname + "_ar_avg")
 
-            if j in molecular_set:
-                return (
+            if j in b.params.ion_set:
+                z = abs(cobj(b, j).config.charge)
+                term1 = -A * z**2 * Ix**0.5 / (1 + b.b_term * aravg * Ix**0.5)
+                term2 = (
                     v[j]
                     * 2
                     * A
-                    / (b.b_term**3)
+                    / (b.b_term * aravg) ** 3
                     * (
-                        (1 + b.b_term * (Ix**0.5))
-                        - 1 / (1 + b.b_term * (Ix**0.5))
-                        - 2 * log(1 + b.b_term * (Ix**0.5))
+                        (1 + b.b_term * aravg * Ix**0.5)
+                        - 1 / (1 + b.b_term * aravg * Ix**0.5)
+                        - 2 * log(1 + b.b_term * aravg * Ix**0.5)
                     )
                 )
-            elif j in b.params.ion_set:
-                z = abs(cobj(b, j).config.charge)
-                return (-A * (z**2) * (Ix**0.5)) / (1 + b.b_term * (Ix**0.5)) + v[
-                    j
-                ] * 2 * A / (b.b_term**3) * (
-                    (1 + b.b_term * (Ix**0.5))
-                    - 1 / (1 + b.b_term * (Ix**0.5))
-                    - 2 * log(1 + b.b_term * (Ix**0.5))
+                return term1 + term2
+
+            elif j in molecular_set:
+                term1 = v[j] * 2 * A / ((b.b_term * aravg) ** 3)
+                term2 = (
+                    (1 + (b.b_term * aravg) * Ix**0.5)
+                    - 1 / (1 + (b.b_term * aravg) * Ix**0.5)
+                    - 2 * log(1 + (b.b_term * aravg) * Ix**0.5)
                 )
+                return term1 * term2
             else:
                 raise BurntToast(
                     "{} eNRTL model encountered unexpected component.".format(b.name)
@@ -821,8 +945,6 @@ class rENRTL(Ideal):
         # ---------------------------------------------------------------------
         # Local Contribution Terms
 
-        # For the symmetric state, all of these are independent of composition
-        # TODO: For the unsymmetric state, it may be necessary to recalculate
         # Calculate alphas for all true species pairings
         def rule_alpha_expr(b, i, j):
             Y = getattr(b, pname + "_Y")
@@ -835,31 +957,31 @@ class rENRTL(Ideal):
                 # alpha equal user provided parameters
                 return alpha_rule(b, pobj, i, j, b.temperature)
             elif i in b.params.cation_set and j in molecular_set:
-                # Eqn 32 from ref[1]
+                # Eqn 32 in ref [1]
                 return sum(
                     Y[k] * alpha_rule(b, pobj, (i + ", " + k), j, b.temperature)
                     for k in b.params.anion_set
                 )
             elif j in b.params.cation_set and i in molecular_set:
-                # Eqn 32 from ref[1]
+                # Eqn 32 in ref [1]
                 return sum(
                     Y[k] * alpha_rule(b, pobj, (j + ", " + k), i, b.temperature)
                     for k in b.params.anion_set
                 )
             elif i in b.params.anion_set and j in molecular_set:
-                # Eqn 33 from ref[1]
+                # Eqn 33 in ref [1]
                 return sum(
                     Y[k] * alpha_rule(b, pobj, (k + ", " + i), j, b.temperature)
                     for k in b.params.cation_set
                 )
             elif j in b.params.anion_set and i in molecular_set:
-                # Eqn 33 from ref[1]
+                # Eqn 33 in ref [1]
                 return sum(
                     Y[k] * alpha_rule(b, pobj, (k + ", " + j), i, b.temperature)
                     for k in b.params.cation_set
                 )
             elif i in b.params.cation_set and j in b.params.anion_set:
-                # Eqn 34 from ref[1]
+                # Eqn 34 in ref [1]
                 if len(b.params.cation_set) > 1:
                     return sum(
                         Y[k]
@@ -871,7 +993,7 @@ class rENRTL(Ideal):
                 else:
                     return 0.2
             elif i in b.params.anion_set and j in b.params.cation_set:
-                # Eqn 35 from ref[1]
+                # Eqn 35 in ref [1]
                 if len(b.params.anion_set) > 1:
                     return sum(
                         Y[k]
@@ -908,7 +1030,7 @@ class rENRTL(Ideal):
         def rule_G_expr(b, i, j):
             Y = getattr(b, pname + "_Y")
 
-            def _G_appr(b, pobj, i, j, T):  # Eqn 23 from ref[1]
+            def _G_appr(b, pobj, i, j, T):  # Eqn 23 in ref [1]
                 if i != j:
                     return exp(
                         -alpha_rule(b, pobj, i, j, T) * tau_rule(b, pobj, i, j, T)
@@ -925,31 +1047,31 @@ class rENRTL(Ideal):
                 # G comes directly from parameters
                 return _G_appr(b, pobj, i, j, b.temperature)
             elif i in b.params.cation_set and j in molecular_set:
-                # Eqn 38 from ref[1]
+                # Eqn 38 in ref [1]
                 return sum(
                     Y[k] * _G_appr(b, pobj, (i + ", " + k), j, b.temperature)
                     for k in b.params.anion_set
                 )
             elif i in molecular_set and j in b.params.cation_set:
-                # Eqn 40 from ref[1]
+                # Eqn 40 in ref [1]
                 return sum(
                     Y[k] * _G_appr(b, pobj, i, (j + ", " + k), b.temperature)
                     for k in b.params.anion_set
                 )
             elif i in b.params.anion_set and j in molecular_set:
-                # Eqn 39 from ref[1]
+                # Eqn 39 in ref [1]
                 return sum(
                     Y[k] * _G_appr(b, pobj, (k + ", " + i), j, b.temperature)
                     for k in b.params.cation_set
                 )
             elif i in molecular_set and j in b.params.anion_set:
-                # Eqn 41 from ref[1]
+                # Eqn 41 in ref [1]
                 return sum(
                     Y[k] * _G_appr(b, pobj, i, (k + ", " + j), b.temperature)
                     for k in b.params.cation_set
                 )
             elif i in b.params.cation_set and j in b.params.anion_set:
-                # Eqn 42 from ref[1]
+                # Eqn 42 in ref [1]
                 if len(b.params.cation_set) > 1:
                     return sum(
                         Y[k]
@@ -963,7 +1085,7 @@ class rENRTL(Ideal):
                     # However, need a valid result to calculate tau
                     return 1
             elif i in b.params.anion_set and j in b.params.cation_set:
-                # Eqn 43 from ref[1]
+                # Eqn 43 in ref [1]
                 if len(b.params.anion_set) > 1:
                     return sum(
                         Y[k]
@@ -1016,7 +1138,7 @@ class rENRTL(Ideal):
             else:
                 alpha = getattr(b, pname + "_alpha")
                 G = getattr(b, pname + "_G")
-                # Eqn 44 from ref[1]
+                # Eqn 44 in ref [1]
                 return -log(G[i, j]) / alpha[i, j]
 
         b.add_component(
@@ -1029,12 +1151,22 @@ class rENRTL(Ideal):
             ),
         )
 
+        # Calculate new tau and G values equivalent to four-indexed
+        # parameters.
         def _calculate_tau_alpha(b):
-            """This function calculates and sets tau and alpha with four indicies
+            """This function calculates and sets tau and alpha with four indices
             as mutable parameters. Note that the ca_m terms refer
-            to the parameters with four indicies as cm_mm and am_mm
+            to the parameters with four indices as cm_mm and am_mm
 
             """
+
+            G = getattr(b, pname + "_G")
+
+            def _G_appr(b, pobj, i, j, T):  # Eqn 23 in ref [1]
+                if i != j:
+                    return exp(
+                        -alpha_rule(b, pobj, i, j, T) * tau_rule(b, pobj, i, j, T)
+                    )
 
             b.alpha_ij_ij = pyo.Param(
                 b.params.true_species_set,
@@ -1042,24 +1174,25 @@ class rENRTL(Ideal):
                 b.params.true_species_set,
                 b.params.true_species_set,
                 mutable=True,
-                initialize=1,
+                initialize=0.2,
+                units=pyunits.dimensionless,
             )
-            b.tau_ij_ij = pyo.Param(
+            b.tau_ij_ij = pyo.Var(
                 b.params.true_species_set,
                 b.params.true_species_set,
                 b.params.true_species_set,
                 b.params.true_species_set,
-                mutable=True,
                 initialize=1,
+                units=pyunits.dimensionless,
             )
 
             for c in b.params.cation_set:
                 for a in b.params.anion_set:
                     for m in molecular_set:
-                        b.alpha_ij_ij[c, m, m, m] = alpha_rule(
+                        b.alpha_ij_ij[c, a, m, m] = alpha_rule(
                             b, pobj, (c + ", " + a), m, b.temperature
                         )
-                        b.alpha_ij_ij[a, m, m, m] = alpha_rule(
+                        b.alpha_ij_ij[a, c, m, m] = alpha_rule(
                             b, pobj, (c + ", " + a), m, b.temperature
                         )
                         b.alpha_ij_ij[m, a, c, a] = alpha_rule(
@@ -1071,27 +1204,103 @@ class rENRTL(Ideal):
 
             for c in b.params.cation_set:
                 for a in b.params.anion_set:
-                    for m in b.params.solvent_set:
-                        b.tau_ij_ij[a, c, a, c] = 0
-                        b.tau_ij_ij[c, a, c, a] = 0
-                        b.tau_ij_ij[m, c, a, c] = (
-                            tau_rule(b, pobj, (c + ", " + a), m, b.temperature)
-                            - tau_rule(b, pobj, (c + ", " + a), m, b.temperature)
-                            + tau_rule(b, pobj, m, (c + ", " + a), b.temperature)
+                    for ap in b.params.anion_set:
+                        if a != ap:
+                            b.alpha_ij_ij[a, c, ap, c] = alpha_rule(
+                                b, pobj, (c + ", " + a), (c + ", " + a), b.temperature
+                            )
+
+            for s in b.params.true_species_set:
+                for m in b.params.solvent_set:
+                    b.tau_ij_ij[s, m, m, m].fix(0)
+                    b.tau_ij_ij[m, m, m, m].fix(0)
+
+            for a in b.params.anion_set:
+                for c in b.params.cation_set:
+                    b.tau_ij_ij[a, c, a, c].fix(0)
+                    b.tau_ij_ij[c, a, c, a].fix(0)
+                    b.tau_ij_ij[a, a, c, a].fix(0)
+                    b.tau_ij_ij[c, c, a, c].fix(0)
+                    for ap in b.params.anion_set:
+                        if a != ap:
+                            b.tau_ij_ij[a, ap, c, ap].fix(0)
+                            b.tau_ij_ij[ap, a, c, a].fix(0)
+
+            def rule_tau_ac_apc(b, a, c, ap):
+                if a != ap:
+                    return b.tau_ij_ij[a, c, ap, c] == (
+                        tau_rule(
+                            b, pobj, (c + ", " + a), (c + ", " + ap), b.temperature
                         )
-                        b.tau_ij_ij[m, a, c, a] = (
-                            tau_rule(b, pobj, (c + ", " + a), m, b.temperature)
-                            - tau_rule(b, pobj, (c + ", " + a), m, b.temperature)
-                            + tau_rule(b, pobj, m, (c + ", " + a), b.temperature)
+                    )
+                else:
+                    return pyo.Constraint.Skip
+
+            b.add_component(
+                pname + "_constraint_tau_ac_apc",
+                pyo.Constraint(
+                    b.params.anion_set,
+                    b.params.cation_set,
+                    b.params.anion_set,
+                    rule=rule_tau_ac_apc,
+                ),
+            )
+
+            def rule_tau_mc_ac(b, m, c, a):
+                Y = getattr(b, pname + "_Y")
+                return b.tau_ij_ij[m, c, a, c] == (
+                    -log(
+                        sum(
+                            _G_appr(b, pobj, (c + ", " + ap), m, b.temperature) * Y[ap]
+                            for ap in b.params.anion_set
                         )
+                    )
+                    / alpha_rule(b, pobj, (c + ", " + a), m, b.temperature)
+                    - tau_rule(b, pobj, (c + ", " + a), m, b.temperature)
+                    + tau_rule(b, pobj, m, (c + ", " + a), b.temperature)
+                )
+
+            b.add_component(
+                pname + "_constraint_tau_mc_ac",
+                pyo.Constraint(
+                    b.params.solvent_set,
+                    b.params.cation_set,
+                    b.params.anion_set,
+                    rule=rule_tau_mc_ac,
+                ),
+            )
+
+            def rule_tau_ma_ca(b, m, a, c):
+                Y = getattr(b, pname + "_Y")
+                return b.tau_ij_ij[m, a, c, a] == (
+                    -log(
+                        sum(
+                            _G_appr(b, pobj, (cp + ", " + a), m, b.temperature) * Y[cp]
+                            for cp in b.params.cation_set
+                        )
+                    )
+                    / alpha_rule(b, pobj, (c + ", " + a), m, b.temperature)
+                    - tau_rule(b, pobj, (c + ", " + a), m, b.temperature)
+                    + tau_rule(b, pobj, m, (c + ", " + a), b.temperature)
+                )
+
+            b.add_component(
+                pname + "_constraint_tau_ma_ca",
+                pyo.Constraint(
+                    b.params.solvent_set,
+                    b.params.anion_set,
+                    b.params.cation_set,
+                    rule=rule_tau_ma_ca,
+                ),
+            )
 
             return b.tau_ij_ij, b.alpha_ij_ij
 
         _calculate_tau_alpha(b)
 
         def _calculate_G(b):
-            """This function calculates G with three and four indicies as a
-            mutable parameter. With three indicies, the only one
+            """This function calculates G with three and four indices as a
+            mutable parameter. With three indices, the only one
             that is calculated is G_ca.m (G_cm.mm, G_am.mm) since
             it is needed in the refined eNRTL. Note that this G is
             not needed in the general NRTL, so this function is not
@@ -1099,47 +1308,95 @@ class rENRTL(Ideal):
 
             """
 
-            def _G_appr(b, pobj, i, j, T):  # Eqn 23 from ref[1]
+            def _G_appr(b, pobj, i, j, T):  # Eqn 23 in ref [1]
                 if i != j:
                     return exp(
                         -alpha_rule(b, pobj, i, j, T) * tau_rule(b, pobj, i, j, T)
                     )
-                else:
-                    return 1
 
-            b.G_ij_ij = pyo.Param(
+            b.G_ij_ij = pyo.Var(
                 b.params.true_species_set,
                 b.params.true_species_set,
                 b.params.true_species_set,
                 b.params.true_species_set,
-                mutable=True,
                 initialize=1,
+                units=pyunits.dimensionless,
             )
 
-            for m in molecular_set:
-                for a in b.params.anion_set:
-                    for c in b.params.cation_set:
-                        b.G_ij_ij[c, m, m, m] = _G_appr(
-                            b, pobj, (c + ", " + a), m, b.temperature
-                        )
-                        b.G_ij_ij[a, m, m, m] = _G_appr(
-                            b, pobj, (c + ", " + a), m, b.temperature
-                        )
+            def rule_G_mc_ac(b, m, c, a):
+                return b.G_ij_ij[m, c, a, c] == exp(
+                    -b.alpha_ij_ij[m, c, a, c] * b.tau_ij_ij[m, c, a, c]
+                )
 
-            for t in b.params.true_species_set:
+            b.add_component(
+                pname + "_constraint_G_mc_ac",
+                pyo.Constraint(
+                    b.params.solvent_set,
+                    b.params.cation_set,
+                    b.params.anion_set,
+                    rule=rule_G_mc_ac,
+                ),
+            )
+
+            def rule_G_ma_ca(b, m, a, c):
+                return b.G_ij_ij[m, a, c, a] == exp(
+                    -b.alpha_ij_ij[m, a, c, a] * b.tau_ij_ij[m, a, c, a]
+                )
+
+            b.add_component(
+                pname + "_constraint_G_ma_ca",
+                pyo.Constraint(
+                    b.params.solvent_set,
+                    b.params.anion_set,
+                    b.params.cation_set,
+                    rule=rule_G_ma_ca,
+                ),
+            )
+
+            def rule_G_ca_mm(b, c, a, m):
+                return b.G_ij_ij[c, a, m, m] == _G_appr(
+                    b, pobj, (c + ", " + a), m, b.temperature
+                )
+
+            b.add_component(
+                pname + "_constraint_G_ca_mm",
+                pyo.Constraint(
+                    b.params.cation_set,
+                    b.params.anion_set,
+                    b.params.solvent_set,
+                    rule=rule_G_ca_mm,
+                ),
+            )
+
+            for c in b.params.cation_set:
                 for a in b.params.anion_set:
-                    for c in b.params.cation_set:
-                        if t == c:
-                            b.G_ij_ij[t, c, a, c] = 0
-                        elif t == a:
-                            b.G_ij_ij[t, a, c, a] = 0
-                        else:
-                            b.G_ij_ij[t, c, a, c] = exp(
-                                -b.alpha_ij_ij[t, c, a, c] * b.tau_ij_ij[t, c, a, c]
-                            )
-                            b.G_ij_ij[t, a, c, a] = exp(
-                                -b.alpha_ij_ij[t, c, a, c] * b.tau_ij_ij[t, a, c, a]
-                            )
+                    b.G_ij_ij[c, a, c, a].fix(1)
+                    b.G_ij_ij[a, c, a, c].fix(1)
+                    b.G_ij_ij[a, a, c, a].fix(0)
+                    b.G_ij_ij[c, c, a, c].fix(0)
+                    b.G_ij_ij[c, c, a, a].fix(0)
+                    for ap in b.params.anion_set:
+                        if a != ap:
+                            b.G_ij_ij[a, ap, c, ap].fix(0)
+                            b.G_ij_ij[ap, a, c, a].fix(0)
+
+            def rule_G_ac_apc(b, a, c, ap):
+                if a != ap:
+                    return b.G_ij_ij[a, c, ap, c] == exp(
+                        -b.alpha_ij_ij[a, c, ap, c] * b.tau_ij_ij[a, c, ap, c]
+                    )
+                else:
+                    return pyo.Constraint.Skip
+
+            b.add_component(
+                pname + "_constraint_G_ac_apc",
+                pyo.Constraint(
+                    b.params.anion_set,
+                    b.params.cation_set,
+                    b.params.anion_set,
+                    rule=rule_G_ac_apc,
+                ),
+            )
 
             return b.G_ij_ij
 
@@ -1195,65 +1452,9 @@ class rENRTL(Ideal):
             pyo.Expression(
                 b.params.true_species_set,
                 rule=rule_log_gamma_lc,
-                doc="Local contribution to activity coefficient",
+                doc="Local contribution contribution to activity coefficient",
             ),
         )
-
-        # Calculate stepwise total hydration term. This equation
-        # calculates a non-constant hydration term using the
-        # long-range interactions and given parameters, such as
-        # hydration constant, minimum hydration numbers, and number of
-        # sites.
-        if not b.constant_hydration:
-
-            def rule_total_hydration_stepwise(b):
-                X = getattr(b, pname + "_X")
-                lc = getattr(b, pname + "_log_gamma_lc")
-                total_hydration = getattr(b, pname + "_total_hydration")
-
-                # NOTES: Select the first solvent and the first
-                # apparent specie with dissociation species.
-                if len(b.params.solvent_set) == 1:
-                    s = b.params.solvent_set.first()
-                    if len(b.apparent_dissociation_species_set) == 1:
-                        ap = b.apparent_dissociation_species_set.first()
-
-                        b.constant_a = pyo.Var(
-                            b.params.ion_set,
-                            units=pyunits.dimensionless,
-                            doc="Constant factor in stepwise hydration model",
-                        )
-                        for ion in b.params.ion_set:
-                            if ion in b.params.cation_set:
-                                b.constant_a[ion].fix(1)
-                            elif ion in b.params.anion_set:
-                                b.constant_a[ion].fix(0)
-
-                        return total_hydration == sum(
-                            b.stoichiometric_coeff[i] * b.min_hydration_number[i]
-                            + b.stoichiometric_coeff[i]
-                            * (
-                                b.number_sites[i]
-                                - b.constant_a[i] * b.min_hydration_number[i]
-                            )
-                            * b.constant_a[i]
-                            * b.hydration_constant[ap]
-                            * X[s]
-                            * exp(lc[s])
-                            / (
-                                1
-                                + b.constant_a[i]
-                                * b.hydration_constant[ap]
-                                * X[s]
-                                * exp(lc[s])
-                            )
-                            for i in b.params.ion_set
-                        )
-
-            b.add_component(
-                pname + "_total_hydration_stepwise_eq",
-                pyo.Constraint(rule=rule_total_hydration_stepwise),
-            )
 
         # Overall log gamma
         def rule_log_gamma(b, j):
@@ -1279,21 +1480,24 @@ class rENRTL(Ideal):
         )
 
         # Activity coefficient of apparent species
+
         def rule_log_gamma_pm(b, j):
             cobj = b.params.get_component(j)
 
             if "dissociation_species" in cobj.config:
                 dspec = cobj.config.dissociation_species
-                n = 0
-                d = 0
+                term_n = 0
+                term_d = 0
 
                 for s in dspec:
                     dobj = b.params.get_component(s)
                     ln_g = getattr(b, pname + "_log_gamma")[s]
-                    n += b.stoichiometric_coeff[s] * ln_g
-                    d += b.stoichiometric_coeff[s]
+                    n = getattr(b, pname + "_n")[s]
+                    term_n += n * ln_g
+                    term_d += n
 
-                return n / d
+                return term_n / term_d
+
             else:
                 return getattr(b, pname + "_log_gamma")[j]
 
@@ -1306,72 +1510,122 @@ class rENRTL(Ideal):
             ),
         )
 
-        # Mean molal log_gamma of ions, Eqn 20 from ref [3] for constant hydration model and Eqn 21 from ref [3] for stepwise hydration model
-        def rule_log_gamma_molal(b):
+        def rule_he(b, ap):
+            n = getattr(b, pname + "_n")
+            he = sum(
+                sum(
+                    b.hydration_number[c] * n[c] + b.hydration_number[a] * n[a]
+                    for c in b.params.cation_set
+                    if c in b.params.config.components[ap]["dissociation_species"]
+                )
+                for a in b.params.anion_set
+                if a in b.params.config.components[ap]["dissociation_species"]
+            ) / sum(
+                n[e]
+                for e in b.params.ion_set
+                if e in b.params.config.components[ap]["dissociation_species"]
+            )
+            return he
+
+        b.add_component(
+            pname + "_he",
+            pyo.Expression(
+                b.apparent_dissociation_species_set,
+                rule=rule_he,
+                doc="Mean hydration number for specific ion pairs",
+            ),
+        )
+
+        def rule_mean_log_ion_pair(b, ap):
+            n = getattr(b, pname + "_n")
+            log_gamma = getattr(b, pname + "_log_gamma")
+            mean_log_a = sum(
+                sum(
+                    log_gamma[c] * n[c] + log_gamma[a] * n[a]
+                    for c in b.params.cation_set
+                    if c in b.params.config.components[ap]["dissociation_species"]
+                )
+                for a in b.params.anion_set
+                if a in b.params.config.components[ap]["dissociation_species"]
+            ) / sum(
+                n[e]
+                for e in b.params.ion_set
+                if e in b.params.config.components[ap]["dissociation_species"]
+            )
+            return mean_log_a
+
+        b.add_component(
+            pname + "_mean_log_ion_pair",
+            pyo.Expression(
+                b.apparent_dissociation_species_set,
+                rule=rule_mean_log_ion_pair,
+                doc="Mean log activity coefficient for specific ion pairs",
+            ),
+        )
+
+        # Mean molal log_gamma of ions
+
+        def rule_log_gamma_molal(b, ap):
             X = getattr(b, pname + "_X")
             lc = getattr(b, pname + "_log_gamma_lc")
             log_gamma_appr = getattr(b, pname + "_log_gamma_appr")
+            log_gamma = getattr(b, pname + "_log_gamma")
             n = getattr(b, pname + "_n")
             total_hydration = getattr(b, pname + "_total_hydration")
-
+            v = getattr(b, pname + "_vol_mol_solution")  # Vm and Vi
+            aravg = getattr(b, pname + "_ar_avg")
+            Ix = getattr(b, pname + "_ionic_strength")
+            pdh = getattr(b, pname + "_log_gamma_pdh")
+            A = getattr(b, pname + "_A_DH")
+            mean_log_a = getattr(b, pname + "_mean_log_ion_pair")
+            he = getattr(b, pname + "_he")
+            # Eqn 2 in ref [3]
             # NOTES: Select the first solvent and apparent specie.
             if len(b.params.solvent_set) == 1:
                 s = b.params.solvent_set.first()
-                if len(b.apparent_dissociation_species_set) == 1:
-                    ap = b.apparent_dissociation_species_set.first()
 
-                    # NOTES: 'flow_mol' could be either of cation or
-                    # anion since we assume both flows are the same.
-                    if len(b.params.cation_set) == 1:
-                        c = b.params.cation_set.first()
-
-                        if b.constant_hydration:
-                            return (
-                                log_gamma_appr[ap]
-                                - (total_hydration / b.vca) * log(X[s] * exp(lc[s]))
-                                - log(
-                                    1
-                                    + (b.vca - total_hydration)
-                                    / (
-                                        b.flow_mol_phase_comp_true[pname, s]
-                                        / b.flow_mol_phase_comp_true[pname, c]
-                                    )
+                if b.constant_hydration:
+                    return (
+                        mean_log_a[ap]
+                        - he[ap]
+                        * log(
+                            X[s]
+                            * exp(
+                                log_gamma[s]
+                                - v[s]
+                                * 2
+                                * A
+                                / (b.b_term * aravg) ** 3
+                                * (
+                                    (1 + b.b_term * aravg * Ix**0.5)
+                                    - 1 / (1 + b.b_term * aravg * Ix**0.5)
+                                    - 2 * log(1 + b.b_term * aravg * Ix**0.5)
                                 )
                             )
-                        else:
-                            sum_n = sum(n[i] for i in b.params.true_species_set)
-                            return log_gamma_appr[ap] + (1 / b.vca) * (
-                                b.vca
-                                * log(b.flow_mol_phase_comp_true[pname, s] / sum_n)
+                        )
+                        - log(
+                            (
+                                b.flow_mol_phase_comp_true[pname, s]
+                                + sum(n[e] for e in b.params.ion_set)
+                                -
+                                # total_hydration
+                                sum(
+                                    n[c] * b.hydration_number[c]
+                                    for c in b.params.cation_set
+                                )
                                 - sum(
-                                    b.stoichiometric_coeff[i]
-                                    * b.min_hydration_number[i]
-                                    for i in b.params.ion_set
-                                )
-                                * (log(X[s]) + lc[s])
-                                + sum(
-                                    b.stoichiometric_coeff[i]
-                                    * (
-                                        b.number_sites[i]
-                                        - b.constant_a[i] * b.min_hydration_number[i]
-                                    )
-                                    * log(
-                                        (1 + b.constant_a[i] * b.hydration_constant[ap])
-                                        / (
-                                            1
-                                            + b.constant_a[i]
-                                            * b.hydration_constant[ap]
-                                            * X[s]
-                                            * exp(lc[s])
-                                        )
-                                    )
-                                    for i in b.params.ion_set
+                                    n[a] * b.hydration_number[a]
+                                    for a in b.params.anion_set
                                 )
                             )
+                            / b.flow_mol_phase_comp_true[pname, s]
+                        )
+                    )
 
         b.add_component(
             pname + "_log_gamma_molal",
             pyo.Expression(
+                b.apparent_dissociation_species_set,
                 rule=rule_log_gamma_molal,
                 doc="Log of molal ion mean activity coefficient",
             ),
@@ -1414,15 +1668,6 @@ class rENRTL(Ideal):
         return exp(ln_gamma[j])
 
     @staticmethod
-    def pressure_osm_phase(b, p):
-        return (
-            -rENRTL.gas_constant(b)
-            * b.temperature
-            * b.log_act_phase_solvents[p]
-            / b.vol_mol_phase[p]
-        )
-
-    @staticmethod
     def vol_mol_phase(b, p):
         # eNRTL model uses apparent species for calculating molar volume
         # TODO : Need something more rigorus to handle concentrated solutions
@@ -1442,7 +1687,7 @@ def log_gamma_lc(b, pname, s, X, G, tau):
 
     """
 
-    # Indicies in expressions use same names as source paper
+    # indices in expressions use same names as source paper
     # mp = m' and so on
 
     molecular_set = b.params.solvent_set | b.params.solute_set
@@ -1451,17 +1696,15 @@ def log_gamma_lc(b, pname, s, X, G, tau):
     if (pname, s) not in b.params.true_phase_component_set:
         # Non-aqueous component
         return Expression.Skip
-
+    # Eqn 6 in ref [2]
     if s in b.params.cation_set:
         c = s
-        Z = b.params.get_component(c).config.charge
 
-        # Eqn 6 from ref[2]. This equation uses G and tau with four
-        # indicies and ignores simplifications.
-        return Z * (
+        return abs(b.params.get_component(c).config.charge) * (
             # Term 1
             sum(
-                (X[m] / sum(X[i] * G[i, m] for i in aqu_species))
+                X[m]
+                / sum(X[i] * G[i, m] for i in aqu_species)
                 * (
                     G[c, m]
                     * (
@@ -1472,18 +1715,25 @@ def log_gamma_lc(b, pname, s, X, G, tau):
                         )
                     )
                     + sum(
-                        (X[a] / sum(X[cp] for cp in b.params.cation_set))
-                        * (b.G_ij_ij[c, m, m, m] - G[a, m])
-                        * (  # Gam instead of Gcm
-                            (
-                                (b.alpha_ij_ij[a, m, m, m] * tau[a, m] - 1)
-                                / b.alpha_ij_ij[a, m, m, m]  # tau_am instead of tau_cm
-                            )
-                            - (
-                                sum(X[i] * G[i, m] * tau[i, m] for i in aqu_species)
-                                / sum(X[i] * G[i, m] for i in aqu_species)
-                            )
+                        X[a]
+                        / (
+                            b.alpha_ij_ij[a, c, m, m]
+                            * sum(X[cp] for cp in b.params.cation_set)
                         )
+                        * (
+                            (b.G_ij_ij[c, a, m, m] - G[a, m])
+                            * (b.alpha_ij_ij[a, c, m, m] * tau[a, m] - 1)
+                        )
+                        for a in b.params.anion_set
+                    )
+                    - (
+                        sum(X[i] * G[i, m] * tau[i, m] for i in aqu_species)
+                        / sum(X[i] * G[i, m] for i in aqu_species)
+                    )
+                    * sum(
+                        X[a]
+                        / sum(X[cp] for cp in b.params.cation_set)
+                        * (b.G_ij_ij[c, a, m, m] - G[a, m])
                         for a in b.params.anion_set
                     )
                 )
@@ -1492,16 +1742,15 @@ def log_gamma_lc(b, pname, s, X, G, tau):
             +
             # Term 2
             sum(
-                (X[a] / sum(X[ap] for ap in b.params.anion_set))
-                * (
-                    sum(
-                        X[i] * b.G_ij_ij[i, c, a, c] * b.tau_ij_ij[i, c, a, c]
-                        for i in aqu_species - b.params.cation_set
-                    )
-                    / sum(
-                        X[i] * b.G_ij_ij[i, c, a, c]
-                        for i in aqu_species - b.params.cation_set
-                    )
+                X[a]
+                / sum(X[ap] for ap in b.params.anion_set)
+                * sum(
+                    X[i] * b.G_ij_ij[i, c, a, c] * b.tau_ij_ij[i, c, a, c]
+                    for i in aqu_species - b.params.cation_set
+                )
+                / sum(
+                    X[i] * b.G_ij_ij[i, c, a, c]
+                    for i in aqu_species - b.params.cation_set
                 )
                 for a in b.params.anion_set
             )
@@ -1521,64 +1770,73 @@ def log_gamma_lc(b, pname, s, X, G, tau):
                             b.G_ij_ij[c, a, cp, a]
                             * (
                                 b.tau_ij_ij[c, a, cp, a]
-                                - (
-                                    sum(
-                                        X[i]
-                                        * b.G_ij_ij[i, a, cp, a]
-                                        * b.tau_ij_ij[i, a, cp, a]
-                                        for i in (aqu_species - b.params.anion_set)
-                                    )
-                                    / sum(
-                                        X[i] * b.G_ij_ij[i, a, cp, a]
-                                        for i in (aqu_species - b.params.anion_set)
-                                    )
+                                - sum(
+                                    X[i]
+                                    * b.G_ij_ij[i, a, cp, a]
+                                    * b.tau_ij_ij[i, a, cp, a]
+                                    for i in (aqu_species - b.params.anion_set)
+                                )
+                                / sum(
+                                    X[i] * b.G_ij_ij[i, a, cp, a]
+                                    for i in (aqu_species - b.params.anion_set)
                                 )
                             )
                             + sum(
-                                (X[m] / sum(X[cpp] for cpp in b.params.cation_set))
-                                * b.G_ij_ij[m, a, cp, a]
-                                * ((b.G_ij_ij[a, m, m, m] - G[a, m]) / G[a, m])
+                                X[m]
+                                / (
+                                    b.alpha_ij_ij[cp, a, m, m]
+                                    * sum(
+                                        X[cpp] * b.G_ij_ij[cpp, a, m, m]
+                                        for cpp in b.params.cation_set
+                                    )
+                                )
                                 * (
                                     (
-                                        (
-                                            b.alpha_ij_ij[c, m, m, m]
+                                        b.G_ij_ij[m, a, cp, a]
+                                        * (b.G_ij_ij[c, a, m, m] - G[a, m])
+                                        * (
+                                            b.alpha_ij_ij[c, a, m, m]
                                             * b.tau_ij_ij[m, a, cp, a]
                                             - 1
                                         )
-                                        / b.alpha_ij_ij[c, m, m, m]
-                                    )
-                                    - (
-                                        sum(
-                                            X[i]
-                                            * b.G_ij_ij[i, a, cp, a]
-                                            * b.tau_ij_ij[i, a, cp, a]
-                                            for i in (aqu_species - b.params.anion_set)
-                                        )
-                                        / sum(
-                                            X[i] * b.G_ij_ij[i, a, cp, a]
-                                            for i in (aqu_species - b.params.anion_set)
-                                        )
                                     )
                                 )
+                                for m in molecular_set
+                            )
+                            - sum(
+                                X[i] * b.G_ij_ij[i, a, cp, a] * b.tau_ij_ij[i, a, cp, a]
+                                for i in (aqu_species - b.params.anion_set)
+                            )
+                            / sum(
+                                X[i] * b.G_ij_ij[i, a, cp, a]
+                                for i in (aqu_species - b.params.anion_set)
+                            )
+                            * sum(
+                                (
+                                    X[m]
+                                    / sum(
+                                        X[cpp] * b.G_ij_ij[cpp, a, m, m]
+                                        for cpp in b.params.cation_set
+                                    )
+                                )
+                                * b.G_ij_ij[m, a, cp, a]
+                                * (b.G_ij_ij[c, a, m, m] - G[a, m])
                                 for m in molecular_set
                             )
                         )
                         for cp in b.params.cation_set
                     )
                     + (
-                        (1 / sum(X[cpp] for cpp in b.params.cation_set))
+                        1
+                        / sum(X[cpp] for cpp in b.params.cation_set)
                         * (
-                            (
-                                sum(
-                                    X[i]
-                                    * b.G_ij_ij[i, a, c, a]
-                                    * b.tau_ij_ij[i, a, c, a]
-                                    for i in (aqu_species - b.params.anion_set)
-                                )
-                                / sum(
-                                    X[i] * b.G_ij_ij[i, a, c, a]
-                                    for i in (aqu_species - b.params.anion_set)
-                                )
+                            sum(
+                                X[i] * b.G_ij_ij[i, a, c, a] * b.tau_ij_ij[i, a, c, a]
+                                for i in (aqu_species - b.params.anion_set)
+                            )
+                            / sum(
+                                X[i] * b.G_ij_ij[i, a, c, a]
+                                for i in (aqu_species - b.params.anion_set)
                             )
                             - sum(
                                 (X[cp] / sum(X[cpp] for cpp in b.params.cation_set))
@@ -1602,16 +1860,15 @@ def log_gamma_lc(b, pname, s, X, G, tau):
                 for a in b.params.anion_set
             )
         )
+    # Eqn 7 in ref [2]
     elif s in b.params.anion_set:
         a = s
-        Z = abs(b.params.get_component(a).config.charge)
 
-        # Eqn 7 from ref[2]. This equation uses G with four indicies
-        # and ignores simplifications.
-        return Z * (
+        return abs(b.params.get_component(a).config.charge) * (
             # Term 1
             sum(
-                (X[m] / sum(X[i] * G[i, m] for i in aqu_species))
+                X[m]
+                / sum(X[i] * G[i, m] for i in aqu_species)
                 * (
                     G[a, m]
                     * (
@@ -1622,18 +1879,25 @@ def log_gamma_lc(b, pname, s, X, G, tau):
                         )
                     )
                     + sum(
-                        (X[c] / sum(X[ap] for ap in b.params.anion_set))
-                        * (b.G_ij_ij[c, m, m, m] - G[c, m])
-                        * (
-                            (
-                                (b.alpha_ij_ij[c, m, m, m] * tau[c, m] - 1)
-                                / b.alpha_ij_ij[c, m, m, m]
-                            )
-                            - (
-                                sum(X[i] * G[i, m] * tau[i, m] for i in aqu_species)
-                                / sum(X[i] * G[i, m] for i in aqu_species)
-                            )
+                        X[c]
+                        / (
+                            b.alpha_ij_ij[c, a, m, m]
+                            * sum(X[ap] for ap in b.params.anion_set)
                         )
+                        * (
+                            (b.G_ij_ij[c, a, m, m] - G[c, m])
+                            * (b.alpha_ij_ij[c, a, m, m] * tau[c, m] - 1)
+                        )
+                        for c in b.params.cation_set
+                    )
+                    - (
+                        sum(X[i] * G[i, m] * tau[i, m] for i in aqu_species)
+                        / sum(X[i] * G[i, m] for i in aqu_species)
+                    )
+                    * sum(
+                        X[c]
+                        / sum(X[ap] for ap in b.params.anion_set)
+                        * (b.G_ij_ij[c, a, m, m] - G[c, m])
                         for c in b.params.cation_set
                     )
                 )
@@ -1642,16 +1906,15 @@ def log_gamma_lc(b, pname, s, X, G, tau):
             +
             # Term 2
             sum(
-                (X[c] / sum(X[cp] for cp in b.params.cation_set))
-                * (
-                    sum(
-                        X[i] * b.G_ij_ij[i, a, c, a] * b.tau_ij_ij[i, a, c, a]
-                        for i in aqu_species - b.params.anion_set
-                    )
-                    / sum(
-                        X[i] * b.G_ij_ij[i, a, c, a]
-                        for i in aqu_species - b.params.anion_set
-                    )
+                X[c]
+                / sum(X[cp] for cp in b.params.cation_set)
+                * sum(
+                    X[i] * b.G_ij_ij[i, a, c, a] * b.tau_ij_ij[i, a, c, a]
+                    for i in aqu_species - b.params.anion_set
+                )
+                / sum(
+                    X[i] * b.G_ij_ij[i, a, c, a]
+                    for i in aqu_species - b.params.anion_set
                 )
                 for c in b.params.cation_set
             )
@@ -1661,19 +1924,87 @@ def log_gamma_lc(b, pname, s, X, G, tau):
                 X[c]
                 * (
                     sum(
-                        (X[ap] / sum(X[app] for app in b.params.anion_set))
-                        * (
-                            1
-                            / sum(
-                                X[i] * b.G_ij_ij[i, c, ap, c]
-                                for i in (aqu_species - b.params.cation_set)
-                            )
+                        X[ap]
+                        / sum(X[app] for app in b.params.anion_set)
+                        / sum(
+                            X[i] * b.G_ij_ij[i, c, ap, c]
+                            for i in (aqu_species - b.params.cation_set)
                         )
                         * (
                             b.G_ij_ij[a, c, ap, c]
                             * (
                                 b.tau_ij_ij[a, c, ap, c]
-                                - (
+                                - sum(
+                                    X[i]
+                                    * b.G_ij_ij[i, c, ap, c]
+                                    * b.tau_ij_ij[i, c, ap, c]
+                                    for i in (aqu_species - b.params.cation_set)
+                                )
+                                / sum(
+                                    X[i] * b.G_ij_ij[i, c, ap, c]
+                                    for i in (aqu_species - b.params.cation_set)
+                                )
+                            )
+                            + sum(
+                                X[m]
+                                / (
+                                    b.alpha_ij_ij[c, ap, m, m]
+                                    * sum(
+                                        X[app] * b.G_ij_ij[c, app, m, m]
+                                        for app in b.params.anion_set
+                                    )
+                                )
+                                * (
+                                    (
+                                        b.G_ij_ij[m, c, ap, c]
+                                        * (b.G_ij_ij[c, a, m, m] - G[c, m])
+                                        * (
+                                            b.alpha_ij_ij[c, ap, m, m]
+                                            * b.tau_ij_ij[m, c, ap, c]
+                                            - 1
+                                        )
+                                    )
+                                )
+                                for m in molecular_set
+                            )
+                            - sum(
+                                X[i] * b.G_ij_ij[i, c, ap, c] * b.tau_ij_ij[i, c, ap, c]
+                                for i in (aqu_species - b.params.cation_set)
+                            )
+                            / sum(
+                                X[i] * b.G_ij_ij[i, c, ap, c]
+                                for i in (aqu_species - b.params.cation_set)
+                            )
+                            * sum(
+                                (
+                                    X[m]
+                                    / sum(
+                                        X[app] * b.G_ij_ij[c, app, m, m]
+                                        for app in b.params.anion_set
+                                    )
+                                )
+                                * b.G_ij_ij[m, c, ap, c]
+                                * (b.G_ij_ij[c, a, m, m] - G[c, m])
+                                for m in molecular_set
+                            )
+                        )
+                        for ap in b.params.anion_set
+                    )
+                    + (
+                        1
+                        / sum(X[app] for app in b.params.anion_set)
+                        * (
+                            sum(
+                                X[i] * b.G_ij_ij[i, c, a, c] * b.tau_ij_ij[i, c, a, c]
+                                for i in (aqu_species - b.params.cation_set)
+                            )
+                            / sum(
+                                X[i] * b.G_ij_ij[i, c, a, c]
+                                for i in (aqu_species - b.params.cation_set)
+                            )
+                            - sum(
+                                (X[ap] / sum(X[app] for app in b.params.anion_set))
+                                * (
                                     sum(
                                         X[i]
                                         * b.G_ij_ij[i, c, ap, c]
@@ -1685,75 +2016,18 @@ def log_gamma_lc(b, pname, s, X, G, tau):
                                         for i in (aqu_species - b.params.cation_set)
                                     )
                                 )
+                                for ap in b.params.anion_set
                             )
-                            + sum(
-                                (X[m] / sum(X[app] for app in b.params.anion_set))
-                                * b.G_ij_ij[m, c, ap, c]
-                                * ((b.G_ij_ij[c, m, m, m] - G[c, m]) / G[c, m])
-                                * (
-                                    (
-                                        (
-                                            b.alpha_ij_ij[c, m, m, m]
-                                            * b.tau_ij_ij[m, c, ap, c]
-                                            - 1
-                                        )
-                                        / b.alpha_ij_ij[c, m, m, m]
-                                    )
-                                    - (
-                                        sum(
-                                            X[i]
-                                            * b.G_ij_ij[i, c, ap, c]
-                                            * b.tau_ij_ij[i, c, ap, c]
-                                            for i in (aqu_species - b.params.cation_set)
-                                        )
-                                        / sum(
-                                            X[i] * b.G_ij_ij[i, c, ap, c]
-                                            for i in (aqu_species - b.params.cation_set)
-                                        )
-                                    )
-                                )
-                                for m in molecular_set
-                            )
-                        )
-                        for ap in b.params.anion_set
-                    )
-                )
-                + (
-                    (1 / sum(X[app] for app in b.params.anion_set))
-                    * (
-                        sum(
-                            X[i] * b.G_ij_ij[i, c, a, c] * b.tau_ij_ij[i, c, a, c]
-                            for i in (aqu_species - b.params.cation_set)
-                        )
-                        / sum(
-                            X[i] * b.G_ij_ij[i, c, a, c]
-                            for i in (aqu_species - b.params.cation_set)
-                        )
-                        - sum(
-                            (X[ap] / sum(X[app] for app in b.params.anion_set))
-                            * (
-                                sum(
-                                    X[i]
-                                    * b.G_ij_ij[i, c, ap, c]
-                                    * b.tau_ij_ij[i, c, ap, c]
-                                    for i in (aqu_species - b.params.cation_set)
-                                )
-                                / sum(
-                                    X[i] * b.G_ij_ij[i, c, ap, c]
-                                    for i in (aqu_species - b.params.cation_set)
-                                )
-                            )
-                            for ap in b.params.anion_set
                         )
                     )
                 )
                 for c in b.params.cation_set
             )
         )
+    # Eqn 8 in ref [2]
     else:
         m = s
 
-        # Eqn 8 from ref[2]
         return (
             sum(X[i] * G[i, m] * tau[i, m] for i in aqu_species)
             / sum(X[i] * G[i, m] for i in aqu_species)
@@ -1761,50 +2035,46 @@ def log_gamma_lc(b, pname, s, X, G, tau):
                 (X[mp] * G[m, mp] / sum(X[i] * G[i, mp] for i in aqu_species))
                 * (
                     tau[m, mp]
-                    - (
-                        sum(X[i] * G[i, mp] * tau[i, mp] for i in aqu_species)
-                        / sum(X[i] * G[i, mp] for i in aqu_species)
-                    )
+                    - sum(X[i] * G[i, mp] * tau[i, mp] for i in aqu_species)
+                    / sum(X[i] * G[i, mp] for i in aqu_species)
                 )
                 for mp in molecular_set
             )
             + sum(
-                (
-                    X[c]
-                    * G[m, c]
-                    / sum(X[i] * G[i, c] for i in (aqu_species - b.params.cation_set))
-                )
-                * (
-                    tau[m, c]
-                    - (
-                        sum(
-                            X[i] * G[i, c] * tau[i, c]
-                            for i in (aqu_species - b.params.cation_set)
+                sum(
+                    X[a]
+                    / sum(X[ap] for ap in b.params.anion_set)
+                    * X[c]
+                    * b.G_ij_ij[m, c, a, c]
+                    / sum(X[i] * b.G_ij_ij[i, c, a, c] for i in aqu_species)
+                    * (
+                        b.tau_ij_ij[m, c, a, c]
+                        - sum(
+                            X[i] * b.G_ij_ij[i, c, a, c] * b.tau_ij_ij[i, c, a, c]
+                            for i in aqu_species
                         )
-                        / sum(
-                            X[i] * G[i, c] for i in (aqu_species - b.params.cation_set)
-                        )
+                        / sum(X[i] * b.G_ij_ij[i, c, a, c] for i in aqu_species)
                     )
+                    for a in b.params.anion_set
                 )
                 for c in b.params.cation_set
             )
             + sum(
-                (
-                    X[a]
-                    * G[m, a]
-                    / sum(X[i] * G[i, a] for i in (aqu_species - b.params.anion_set))
-                )
-                * (
-                    tau[m, a]
-                    - (
-                        sum(
-                            X[i] * G[i, a] * tau[i, a]
-                            for i in (aqu_species - b.params.anion_set)
+                sum(
+                    X[c]
+                    / sum(X[cp] for cp in b.params.cation_set)
+                    * X[a]
+                    * b.G_ij_ij[m, a, c, a]
+                    / sum(X[i] * b.G_ij_ij[i, a, c, a] for i in aqu_species)
+                    * (
+                        b.tau_ij_ij[m, a, c, a]
+                        - sum(
+                            X[i] * b.G_ij_ij[i, a, c, a] * b.tau_ij_ij[i, a, c, a]
+                            for i in aqu_species
                         )
-                        / sum(
-                            X[i] * G[i, a] for i in (aqu_species - b.params.anion_set)
-                        )
+                        / sum(X[i] * b.G_ij_ij[i, a, c, a] for i in aqu_species)
                     )
+                    for c in b.params.cation_set
                 )
                 for a in b.params.anion_set
             )
@@ -1818,16 +2088,15 @@ def log_gamma_inf(b, pname, s, X, G, tau):
         # Non-aqueous component
         return Expression.Skip
 
-    # Select one solvent
+    # Select first solvent
     if len(b.params.solvent_set) == 1:
         w = b.params.solvent_set.first()
 
+    # Eqn 9 in ref [2]
     if s in b.params.cation_set:
         c = s
-        Z = b.params.get_component(c).config.charge
 
-        # Eqn 9 from ref[2]
-        return Z * (
+        return abs(b.params.get_component(c).config.charge) * (
             sum(
                 (X[a] / sum(X[ap] for ap in b.params.anion_set))
                 * b.tau_ij_ij[w, c, a, c]
@@ -1836,10 +2105,10 @@ def log_gamma_inf(b, pname, s, X, G, tau):
             + G[c, w] * tau[c, w]
             + sum(
                 (X[a] / sum(X[cp] for cp in b.params.cation_set))
-                * (b.G_ij_ij[a, w, w, w] - G[a, w])
+                * (b.G_ij_ij[c, a, w, w] - G[a, w])
                 * (
-                    (b.alpha_ij_ij[a, w, w, w] * tau[a, w] - 1)
-                    / b.alpha_ij_ij[a, w, w, w]
+                    (b.alpha_ij_ij[c, a, w, w] * tau[a, w] - 1)
+                    / b.alpha_ij_ij[c, a, w, w]
                 )
                 for a in b.params.anion_set
             )
@@ -1848,14 +2117,29 @@ def log_gamma_inf(b, pname, s, X, G, tau):
                 * (
                     sum(
                         (X[cp] / sum(X[cpp] for cpp in b.params.cation_set))
-                        * (1 / sum(X[cpp] for cpp in b.params.cation_set))
+                        / b.G_ij_ij[w, a, cp, a]
                         * (
-                            (b.G_ij_ij[c, w, w, w] - G[a, w])
-                            / (b.alpha_ij_ij[c, w, w, w] * G[a, w])
+                            (b.G_ij_ij[c, a, w, w] - G[a, w])
+                            * b.G_ij_ij[w, a, cp, a]
+                            * (b.alpha_ij_ij[c, a, w, w] * b.tau_ij_ij[w, a, cp, a] - 1)
+                            / (
+                                b.alpha_ij_ij[a, c, w, w]
+                                * sum(
+                                    X[cpp] * b.G_ij_ij[cpp, a, w, w]
+                                    for cpp in b.params.cation_set
+                                )
+                            )
+                            - b.tau_ij_ij[w, a, cp, a]
+                            * (b.G_ij_ij[c, a, w, w] - G[a, w])
+                            * b.G_ij_ij[w, a, cp, a]
+                            / sum(
+                                X[cpp] * b.G_ij_ij[cpp, a, w, w]
+                                for cpp in b.params.cation_set
+                            )
                         )
                         for cp in b.params.cation_set
                     )
-                    - (1 / sum(X[cpp] for cpp in b.params.cation_set))
+                    + (1 / sum(X[cpp] for cpp in b.params.cation_set))
                     * (
                         b.tau_ij_ij[w, a, c, a]
                         - sum(
@@ -1869,40 +2153,57 @@ def log_gamma_inf(b, pname, s, X, G, tau):
             )
         )
 
+    # Eqn 10 in ref [2]
     elif s in b.params.anion_set:
         a = s
-        Z = abs(b.params.get_component(a).config.charge)
 
-        # Eqn 10 from ref[2]
-        return Z * (
+        return abs(b.params.get_component(a).config.charge) * (
             sum(
-                (X[c] / sum(X[cp] for cp in b.params.cation_set))
+                X[c]
+                / sum(X[cp] for cp in b.params.cation_set)
                 * b.tau_ij_ij[w, a, c, a]
                 for c in b.params.cation_set
             )
             + G[a, w] * tau[a, w]
             + sum(
                 (X[c] / sum(X[ap] for ap in b.params.anion_set))
-                * (b.G_ij_ij[a, w, w, w] - G[c, w])
+                * (b.G_ij_ij[c, a, w, w] - G[c, w])
                 * (
-                    (b.alpha_ij_ij[a, w, w, w] * tau[c, w] - 1)
-                    / b.alpha_ij_ij[a, w, w, w]
+                    (b.alpha_ij_ij[c, a, w, w] * tau[c, w] - 1)
+                    / b.alpha_ij_ij[c, a, w, w]
                 )
                 for c in b.params.cation_set
             )
-            - sum(
+            + sum(
                 X[c]
                 * (
                     sum(
                         (X[ap] / sum(X[app] for app in b.params.anion_set))
-                        * (1 / sum(X[app] for app in b.params.anion_set))
+                        / b.G_ij_ij[w, c, ap, c]
                         * (
-                            (b.G_ij_ij[a, w, w, w] - G[c, w])
-                            / (b.alpha_ij_ij[a, w, w, w] * G[c, w])
+                            (b.G_ij_ij[c, a, w, w] - G[c, w])
+                            * b.G_ij_ij[w, c, ap, c]
+                            * (b.alpha_ij_ij[c, a, w, w] * b.tau_ij_ij[w, c, ap, c] - 1)
+                            / (
+                                b.alpha_ij_ij[a, c, w, w]
+                                * sum(
+                                    X[app] * b.G_ij_ij[c, app, w, w]
+                                    for app in b.params.anion_set
+                                )
+                            )
+                            - b.tau_ij_ij[w, c, ap, c]
+                            * (b.G_ij_ij[c, a, w, w] - G[c, w])
+                            * b.G_ij_ij[w, c, ap, c]
+                            / sum(
+                                X[app] * b.G_ij_ij[c, app, w, w]
+                                for app in b.params.anion_set
+                            )
                         )
                         for ap in b.params.anion_set
                     )
-                    - (1 / sum(X[app] for app in b.params.anion_set))
+                    # This sign is "-" in single electrolyte eNRTL
+                    # model
+                    + (1 / sum(X[app] for app in b.params.anion_set))
                     * (
                         b.tau_ij_ij[w, c, a, c]
                         - sum(
@@ -1915,7 +2216,7 @@ def log_gamma_inf(b, pname, s, X, G, tau):
                 for c in b.params.cation_set
             )
         )
-
+    # This term is just 0 when water is the only solvent.
     else:
         m = s
 
