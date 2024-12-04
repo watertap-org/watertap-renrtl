@@ -44,13 +44,14 @@ Application to Multi-Electrolyte Systems. AIChE J., 2008, 54,
 [3] Xi Yang, Paul I. Barton, and George M. Bollas, Refined
 electrolyte-NRTL model: Inclusion of hydration for the detailed
 description of electrolyte solutions. Part I: Single electrolytes up
-to moderate concentrations, single salts up to solubility limit.
+to moderate concentrations, single salts up to solubility limit. 
+Journal publication currently in progress.
 
 [4] Y. Marcus, Ion solvation, Wiley-Interscience, New York, 1985.
 
 [5] X. Yang, P. I. Barton, G. M. Bollas, The significance of
 frameworks in electrolyte thermodynamic model development. Fluid Phase
-Equilib., 2019
+Equilib. Journal publication currently in progress.
 
 [6] E. Glueckauf, Molar volumes of ions, Trans. Faraday Soc. 61 (1965).
 

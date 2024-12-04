@@ -44,7 +44,8 @@ Application to Multi-Electrolyte Systems. AIChE J., 2008, 54,
 [3] Xi Yang, Paul I. Barton, and George M. Bollas, Refined                 
 electrolyte-NRTL model: Inclusion of hydration for the detailed            
 description of electrolyte solutions. Part I: Single electrolytes up       
-to moderate concentrations, single salts up to solubility limit.           
+to moderate concentrations, single salts up to solubility limit.
+Journal publication currently in progress.          
 
 *KEY LITERATURE[3].
 *This source contains the primary parameter values and equations.
