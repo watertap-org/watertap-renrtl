@@ -33,6 +33,7 @@ References:
 electrolyte-NRTL model: Inclusion of hydration for the detailed
 description of electrolyte solutions. Part I: Single electrolytes up
 to moderate concentrations, single salts up to solubility limit.
+Under Review. (2024)
 
 Note that ref [1] contains the primary parameter values and equations.
 
@@ -47,7 +48,6 @@ Experimental data reference:
 L., & Esteso, M. A. (1999). Thermodynamic Study of the NaCl + Na2SO4 + H2O 
 System by Emf Measurements at Four Temperatures. Journal of Solution 
 Chemistry, 28(6), 791–807. https://doi.org/10.1023/A:1021780414613 
-
 
 [5] The reference values used for comparison in this test file are based on the model's
 output from the author's validation file, covering all reference properties for this test.

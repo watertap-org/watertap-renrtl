@@ -45,6 +45,7 @@ Application to Multi-Electrolyte Systems. AIChE J., 2008, 54,
 electrolyte-NRTL model: Inclusion of hydration for the detailed
 description of electrolyte solutions. Part I: Single electrolytes up
 to moderate concentrations, single salts up to solubility limit.
+Under Review. (2024)
 
 [4] Y. Marcus, Ion solvation, Wiley-Interscience, New York, 1985.
 
@@ -53,12 +54,6 @@ frameworks in electrolyte thermodynamic model development. Fluid Phase
 Equilib., 2019
 
 [6] E. Glueckauf, Molar volumes of ions, Trans. Faraday Soc. 61 (1965).
-
-[7] Chen, Chau‐Chyun, Herbert I. Britt, J. F. Boston, and L. B. Evans. 
-"Local composition model for excess Gibbs energy of electrolyte systems. 
-Part I: Single solvent, single completely dissociated electrolyte systems."
-AIChE Journal 28, no. 4 (1982): 588-596.
-
 
 Note that "charge number" in the paper [1] refers to the absolute value
 of the ionic charge.
@@ -344,8 +339,8 @@ class rENRTL(Ideal):
         # electrostricted water in the hydration shell of ions and it
         # is specific to the type of electrolyte.
         # Beta is a parameter determined by the charge of the ion pairs, like NaCl is 1-1, Na2SO4 is 1-2
-        # Beta is obtained using parameter estimation by Xi Yang ref[3] (page 35 values multiplied by 5.187529),
-        # original data used for parameter estimation are from ref[4].
+        # Beta is obtained using parameter estimation by Xi Yang ref [3] (page 35 values multiplied by 5.187529),
+        # original data used for parameter estimation are from ref [4].
         b.add_component(
             "beta",
             pyo.Var(
@@ -521,7 +516,7 @@ class rENRTL(Ideal):
                 dom = b.params.cation_set
 
             X = getattr(b, pname + "_X")
-            return X[j] / sum(X[i] for i in dom)  # Eqns 36 and 37 from ref[1]
+            return X[j] / sum(X[i] for i in dom)  # Eqns 36 and 37 from ref [1]
             # Y is a charge ratio, and thus independent of x for symmetric state
             # TODO: This may need to change for the unsymmetric state
 
@@ -532,7 +527,7 @@ class rENRTL(Ideal):
 
         # ---------------------------------------------------------------------
         # Long-range terms
-        # Eqn 22 from ref 6
+        # Eqn 22 from ref [6]
         def rule_Vo(b, i):
             b.ionic_radius_m = pyo.units.convert(
                 b.ionic_radius[i], to_units=pyo.units.m
@@ -596,7 +591,7 @@ class rENRTL(Ideal):
 
         # Average molar volume of solvent
         def rule_vol_mol_solvent(b):
-            # Equation from ref[3], page 14
+            # Equation from ref [3], page 14
 
             Vo = getattr(b, pname + "_Vo")
             Vq = getattr(b, pname + "_Vq")
@@ -609,7 +604,7 @@ class rENRTL(Ideal):
                     s
                 ).mw / dens_mass + sum(
                     b.stoichiometric_coeff[e] * b.flow_mol_phase_comp_true[pname, e] *
-                    # Intrinsic molar volume from Eq. 10 in ref[3]
+                    # Intrinsic molar volume from Eq. 10 in ref [3]
                     (Vq[e] + (Vo[e] - Vq[e]) * sum(Xp[j] for j in b.params.ion_set))
                     for e in b.params.ion_set
                 )
@@ -681,7 +676,7 @@ class rENRTL(Ideal):
         )
 
         # Mean relative permitivity of solvent
-        def rule_eps_solvent(b):  # Eqn 78 from ref[1]
+        def rule_eps_solvent(b):  # Eqn 78 from ref [1]
             if len(b.params.solvent_set) == 1:
                 s = b.params.solvent_set.first()
                 return get_method(b, "relative_permittivity_liq_comp", s)(
@@ -741,8 +736,8 @@ class rENRTL(Ideal):
 
         # Functions to calculate parameters for long-range equations
         # b term
-        # ref[3] eq#[2] first line
-        # b_term = kappa*ar/I. The I term here is the ionic strength. kappa is from ref[3] eq+2 first line
+        # ref [3] eq#[2] first line
+        # b_term = kappa*ar/I. The I term here is the ionic strength. kappa is from ref [3] eq+2 first line
 
         def rule_b_term(b):
             eps = getattr(b, pname + "_relative_permittivity_solvent")
@@ -777,7 +772,7 @@ class rENRTL(Ideal):
             pyo.Expression(rule=rule_A_DH, doc="Debye-Huckel parameter"),
         )
 
-        # Long-range (PDH) contribution to activity coefficient. Eqn derived from ref[5].
+        # Long-range (PDH) contribution to activity coefficient. Eqn derived from ref [5].
         def rule_log_gamma_pdh(b, j):
             A = getattr(b, pname + "_A_DH")
             Ix = getattr(b, pname + "_ionic_strength")
@@ -835,31 +830,31 @@ class rENRTL(Ideal):
                 # alpha equal user provided parameters
                 return alpha_rule(b, pobj, i, j, b.temperature)
             elif i in b.params.cation_set and j in molecular_set:
-                # Eqn 32 from ref[1]
+                # Eqn 32 from ref [1]
                 return sum(
                     Y[k] * alpha_rule(b, pobj, (i + ", " + k), j, b.temperature)
                     for k in b.params.anion_set
                 )
             elif j in b.params.cation_set and i in molecular_set:
-                # Eqn 32 from ref[1]
+                # Eqn 32 from ref [1]
                 return sum(
                     Y[k] * alpha_rule(b, pobj, (j + ", " + k), i, b.temperature)
                     for k in b.params.anion_set
                 )
             elif i in b.params.anion_set and j in molecular_set:
-                # Eqn 33 from ref[1]
+                # Eqn 33 from ref [1]
                 return sum(
                     Y[k] * alpha_rule(b, pobj, (k + ", " + i), j, b.temperature)
                     for k in b.params.cation_set
                 )
             elif j in b.params.anion_set and i in molecular_set:
-                # Eqn 33 from ref[1]
+                # Eqn 33 from ref [1]
                 return sum(
                     Y[k] * alpha_rule(b, pobj, (k + ", " + j), i, b.temperature)
                     for k in b.params.cation_set
                 )
             elif i in b.params.cation_set and j in b.params.anion_set:
-                # Eqn 34 from ref[1]
+                # Eqn 34 from ref [1]
                 if len(b.params.cation_set) > 1:
                     return sum(
                         Y[k]
@@ -871,7 +866,7 @@ class rENRTL(Ideal):
                 else:
                     return 0.2
             elif i in b.params.anion_set and j in b.params.cation_set:
-                # Eqn 35 from ref[1]
+                # Eqn 35 from ref [1]
                 if len(b.params.anion_set) > 1:
                     return sum(
                         Y[k]
@@ -908,7 +903,7 @@ class rENRTL(Ideal):
         def rule_G_expr(b, i, j):
             Y = getattr(b, pname + "_Y")
 
-            def _G_appr(b, pobj, i, j, T):  # Eqn 23 from ref[1]
+            def _G_appr(b, pobj, i, j, T):  # Eqn 23 from ref [1]
                 if i != j:
                     return exp(
                         -alpha_rule(b, pobj, i, j, T) * tau_rule(b, pobj, i, j, T)
@@ -925,31 +920,31 @@ class rENRTL(Ideal):
                 # G comes directly from parameters
                 return _G_appr(b, pobj, i, j, b.temperature)
             elif i in b.params.cation_set and j in molecular_set:
-                # Eqn 38 from ref[1]
+                # Eqn 38 from ref [1]
                 return sum(
                     Y[k] * _G_appr(b, pobj, (i + ", " + k), j, b.temperature)
                     for k in b.params.anion_set
                 )
             elif i in molecular_set and j in b.params.cation_set:
-                # Eqn 40 from ref[1]
+                # Eqn 40 from ref [1]
                 return sum(
                     Y[k] * _G_appr(b, pobj, i, (j + ", " + k), b.temperature)
                     for k in b.params.anion_set
                 )
             elif i in b.params.anion_set and j in molecular_set:
-                # Eqn 39 from ref[1]
+                # Eqn 39 from ref [1]
                 return sum(
                     Y[k] * _G_appr(b, pobj, (k + ", " + i), j, b.temperature)
                     for k in b.params.cation_set
                 )
             elif i in molecular_set and j in b.params.anion_set:
-                # Eqn 41 from ref[1]
+                # Eqn 41 from ref [1]
                 return sum(
                     Y[k] * _G_appr(b, pobj, i, (k + ", " + j), b.temperature)
                     for k in b.params.cation_set
                 )
             elif i in b.params.cation_set and j in b.params.anion_set:
-                # Eqn 42 from ref[1]
+                # Eqn 42 from ref [1]
                 if len(b.params.cation_set) > 1:
                     return sum(
                         Y[k]
@@ -963,7 +958,7 @@ class rENRTL(Ideal):
                     # However, need a valid result to calculate tau
                     return 1
             elif i in b.params.anion_set and j in b.params.cation_set:
-                # Eqn 43 from ref[1]
+                # Eqn 43 from ref [1]
                 if len(b.params.anion_set) > 1:
                     return sum(
                         Y[k]
@@ -1016,7 +1011,7 @@ class rENRTL(Ideal):
             else:
                 alpha = getattr(b, pname + "_alpha")
                 G = getattr(b, pname + "_G")
-                # Eqn 44 from ref[1]
+                # Eqn 44 from ref [1]
                 return -log(G[i, j]) / alpha[i, j]
 
         b.add_component(
@@ -1099,7 +1094,7 @@ class rENRTL(Ideal):
 
             """
 
-            def _G_appr(b, pobj, i, j, T):  # Eqn 23 from ref[1]
+            def _G_appr(b, pobj, i, j, T):  # Eqn 23 from ref [1]
                 if i != j:
                     return exp(
                         -alpha_rule(b, pobj, i, j, T) * tau_rule(b, pobj, i, j, T)
@@ -1456,7 +1451,7 @@ def log_gamma_lc(b, pname, s, X, G, tau):
         c = s
         Z = b.params.get_component(c).config.charge
 
-        # Eqn 6 from ref[2]. This equation uses G and tau with four
+        # Eqn 6 from ref [2]. This equation uses G and tau with four
         # indicies and ignores simplifications.
         return Z * (
             # Term 1
@@ -1606,7 +1601,7 @@ def log_gamma_lc(b, pname, s, X, G, tau):
         a = s
         Z = abs(b.params.get_component(a).config.charge)
 
-        # Eqn 7 from ref[2]. This equation uses G with four indicies
+        # Eqn 7 from ref [2]. This equation uses G with four indicies
         # and ignores simplifications.
         return Z * (
             # Term 1
@@ -1753,7 +1748,7 @@ def log_gamma_lc(b, pname, s, X, G, tau):
     else:
         m = s
 
-        # Eqn 8 from ref[2]
+        # Eqn 8 from ref [2]
         return (
             sum(X[i] * G[i, m] * tau[i, m] for i in aqu_species)
             / sum(X[i] * G[i, m] for i in aqu_species)
@@ -1826,7 +1821,7 @@ def log_gamma_inf(b, pname, s, X, G, tau):
         c = s
         Z = b.params.get_component(c).config.charge
 
-        # Eqn 9 from ref[2]
+        # Eqn 9 from ref [2]
         return Z * (
             sum(
                 (X[a] / sum(X[ap] for ap in b.params.anion_set))
@@ -1873,7 +1868,7 @@ def log_gamma_inf(b, pname, s, X, G, tau):
         a = s
         Z = abs(b.params.get_component(a).config.charge)
 
-        # Eqn 10 from ref[2]
+        # Eqn 10 from ref [2]
         return Z * (
             sum(
                 (X[c] / sum(X[cp] for cp in b.params.cation_set))
