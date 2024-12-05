@@ -170,7 +170,7 @@ configuration = {
             ("Na+, Cl-", "H2O"): tau_ionpair_solvent,
         },
     },
-    "default_scaling_factors": { # ref [1]
+    "default_scaling_factors": {  # ref [1]
         ("flow_mol_phase_comp", ("Liq", "Na+")): 1e1,
         ("flow_mol_phase_comp", ("Liq", "Cl-")): 1e1,
         ("flow_mol_phase_comp", ("Liq", "H2O")): 1e-1,
