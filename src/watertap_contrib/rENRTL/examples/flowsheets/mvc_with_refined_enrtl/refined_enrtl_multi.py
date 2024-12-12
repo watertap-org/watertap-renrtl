@@ -44,28 +44,28 @@ Application to Multi-Electrolyte Systems. AIChE J., 2008, 54,
 [3] Xi Yang, Paul I. Barton, and George M. Bollas, Refined                 
 electrolyte-NRTL model: Inclusion of hydration for the detailed            
 description of electrolyte solutions. Part I: Single electrolytes up       
-to moderate concentrations, single salts up to solubility limit.           
+to moderate concentrations, single salts up to solubility limit. 
+Under Review. (2024)          
 
 *KEY LITERATURE[3].
 *This source contains the primary parameter values and equations.
 
-[4] Y. Marcus, Ion solvation, Wiley-Interscience, New York, 1985.
+[4] E. Glueckauf, Molar volumes of ions, Trans. Faraday Soc. 61 (1965).
 
-[5] E. Glueckauf, Molar volumes of ions, Trans. Faraday Soc. 61 (1965).
-
-[6] Clegg, Simon L., and Kenneth S. Pitzer. "Thermodynamics of multicomponent,
+[5] Clegg, Simon L., and Kenneth S. Pitzer. "Thermodynamics of multicomponent,
 miscible, ionic solutions: generalized equations for symmetrical electrolytes."
 The Journal of Physical Chemistry 96, no. 8 (1992): 3513-3520.
 
-[7] Maribo-Mogensen, B., Kontogeorgis, G. M., & Thomsen, K. (2012). Comparison 
+[6] Maribo-Mogensen, B., Kontogeorgis, G. M., & Thomsen, K. (2012). Comparison 
 of the Debye–Hückel and the Mean Spherical Approximation Theories for 
 Electrolyte Solutions. Industrial & engineering chemistry 
 research, 51(14), 5353-5363.
 
-[8] Braus, M. (2019). The theory of electrolytes. I. Freezing point depression 
-and related phenomena (Translation).
+[7] Debye, P., & Hückel, E. (1923)., The theory of electrolytes. I. 
+Freezing point depression and related phenomena. 
+Translated and typeset by Michael J. Braus (2019)
 
-[9] Robinson, R. A., & Stokes, R. H. (2002). Electrolyte solutions. Courier Corporation.
+[8] Robinson, R. A., & Stokes, R. H. (2002). Electrolyte solutions. Courier Corporation.
 
 Note that The term "charge number" in ref [1] denotes the absolute value
 of the ionic charge.
@@ -338,7 +338,7 @@ class rENRTL(Ideal):
         # which is specific to each electrolyte type.
         # Beta is determined by the charge of ion pairs (e.g., 1-1 for NaCl, 1-2 for Na2SO4).
         # Beta values are estimated following Xi Yang's method ref [3] (page 35, values multiplied by 5.187529);
-        # original data used for parameter estimation are in ref [9].
+        # original data used for parameter estimation are in ref [8].
         b.add_component(
             "beta",
             pyo.Var(
@@ -491,7 +491,7 @@ class rENRTL(Ideal):
 
         # ---------------------------------------------------------------------
         # Long-range terms
-        # Eqn 2 in ref [5]
+        # Eqn 2 in ref [4]
         def rule_Vo(b, i):
             b.ionic_radius_m = pyo.units.convert(
                 b.ionic_radius[i], to_units=pyo.units.m
@@ -568,7 +568,7 @@ class rENRTL(Ideal):
             ),
         )
 
-        # Eqn 1 & 5 in ref [7]. "rule_vol_mol_solvent" is used to calculate the total volume of solution.
+        # Eqn 1 & 5 in ref [6]. "rule_vol_mol_solvent" is used to calculate the total volume of solution.
         def rule_vol_mol_solvent(b):
             n = getattr(b, pname + "_n")
             Vo = getattr(b, pname + "_Vo")
@@ -589,13 +589,13 @@ class rENRTL(Ideal):
                     term0
                     + sum(
                         n[e] *
-                        # The term below is Eqn 5 in ref [7]
+                        # The term below is Eqn 5 in ref [6]
                         (Vq[e] + (Vo[e] - Vq[e]) * (b.sumxc + b.sumxa))
                         for e in b.params.cation_set
                     )
                     + sum(
                         n[e] *
-                        # The term below is Eqn 5 in ref [7]
+                        # The term below is Eqn 5 in ref [6]
                         (Vq[e] + (Vo[e] - Vq[e]) * (b.sumxc + b.sumxa))
                         for e in b.params.anion_set
                     )
@@ -664,7 +664,7 @@ class rENRTL(Ideal):
 
         # Ionic strength.
         # Function to calculate ionic strength in mole fraction scale (m3/mol)
-        # Eqn 39 in ref [6]
+        # Eqn 39 in ref [5]
         def rule_I(b):
             v = getattr(b, pname + "_vol_mol_solvent")  # Vt
             n = getattr(b, pname + "_n")
@@ -838,7 +838,7 @@ class rENRTL(Ideal):
 
         b.kappa = pyo.Expression(rule=rule_kappa)
 
-        # Eqn 33 in ref [8]
+        # Eqn 33 in ref [7]
         def rule_sigma(b):
             aravg = getattr(b, pname + "_ar_avg")
             return (
@@ -856,7 +856,7 @@ class rENRTL(Ideal):
 
         b.sigma = pyo.Expression(rule=rule_sigma)
 
-        # Eqn 27 in ref [8]
+        # Eqn 27 in ref [7]
         def rule_tau2(b):
             aravg = getattr(b, pname + "_ar_avg")
 

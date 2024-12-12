@@ -35,6 +35,7 @@ Technology, 2021, Vol. 276.
 electrolyte-NRTL model: Inclusion of hydration for the detailed
 description of electrolyte solutions. Part I: Single electrolytes up
 to moderate concentrations, single salts up to solubility limit.
+Under Review. (2024)
 
 [3] Y. Marcus, A simple empirical model describing the thermodynamics
 of hydration of ions of widely varying charges, sizes, and shapes,
@@ -169,7 +170,7 @@ configuration = {
             ("Na+, Cl-", "H2O"): tau_ionpair_solvent,
         },
     },
-    "default_scaling_factors": {
+    "default_scaling_factors": {  # ref [1]
         ("flow_mol_phase_comp", ("Liq", "Na+")): 1e1,
         ("flow_mol_phase_comp", ("Liq", "Cl-")): 1e1,
         ("flow_mol_phase_comp", ("Liq", "H2O")): 1e-1,
