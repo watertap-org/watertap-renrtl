@@ -344,7 +344,6 @@ def create_model():
 
     # MED Loop
     if solve_nonideal:
-
         # Add activity coefficient as a global variable in each evaporator.
         m.fs.act_coeff = pyo.Var(
             m.fs.set_evaporators,
@@ -426,7 +425,6 @@ def create_model():
 
     # AHP Loop
     if solve_nonideal_AHP:
-
         # Add activity coefficient as a global variable in each evaporator.
         m.fs.act_coeff_gen = pyo.Var(
             initialize=1, units=pyunits.dimensionless, bounds=(1e-5, 100)
@@ -590,7 +588,6 @@ def create_arcs(m):
 
 # MED Loop
 def add_enrtl_method_single(m, n_evap=None):
-
     sb_enrtl = m.fs.enrtl_state[n_evap].properties[0]  # renaming the block
 
     # Populate eNRTL state block
@@ -674,7 +671,6 @@ def add_enrtl_method_single(m, n_evap=None):
 
 
 def add_enrtl_method_multi(m, n_evap=None):
-
     sb_enrtl = m.fs.enrtl_state[n_evap].properties[0]  # renaming the block
 
     # Populate eNRTL state block
@@ -772,7 +768,6 @@ def add_enrtl_method_multi(m, n_evap=None):
 
 
 def add_enrtl_method_AHP(m):
-
     sb_enrtl_gen = m.fs.enrtl_state_gen.properties[0]  # renaming the block
 
     # Populate eNRTL state block
@@ -888,7 +883,6 @@ def set_scaling(m):
 
 
 def set_model_inputs(m):
-
     # Feed
     # Assumed a constant feedflowrate of seawater to be 0.25kg/s
     # TDS flowrate = [(TDS concentration=23,000ppm * Seawater feed flowrate=0.25)]/1.0e6
@@ -985,7 +979,6 @@ def set_model_inputs(m):
 
 
 def initialize(m, solver=None, outlvl=idaeslog.NOTSET):
-
     # Initialize feed
     m.fs.feed_sw.properties[0].mass_frac_phase_comp["Liq", "TDS"]
     solver.solve(m.fs.feed_sw)
@@ -1086,7 +1079,6 @@ def initialize(m, solver=None, outlvl=idaeslog.NOTSET):
 
 
 def add_bounds(m):
-
     for i in m.fs.set_evaporators:
         m.fs.evaporator[i].area.setlb(10)
         m.fs.evaporator[i].area.setub(None)
@@ -1096,7 +1088,6 @@ def add_bounds(m):
 
 
 def print_results(m):
-
     sw_blk_gen = m.fs.generator.properties_feed[0]
     brine_blk_gen = m.fs.generator.properties_brine[0]
     vapor_blk_gen = m.fs.generator.properties_vapor[0]
@@ -1737,7 +1728,6 @@ def model_analysis(m, water_rec=None):
 
 
 if __name__ == "__main__":
-
     optarg = {"max_iter": 500, "tol": 1e-8}
     solver = get_solver("ipopt", optarg)
 

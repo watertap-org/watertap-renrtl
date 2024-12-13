@@ -468,7 +468,6 @@ class LiBrParameterData(PhysicalParameterBlock):
 
 # This Class contains methods which should be applied to Property Blocks as a whole, rather than individual elements of indexed Property Blocks.
 class _LiBrStateBlock(StateBlock):
-
     def fix_initialization_states(self):
         """
         Fixes state variables for state blocks.

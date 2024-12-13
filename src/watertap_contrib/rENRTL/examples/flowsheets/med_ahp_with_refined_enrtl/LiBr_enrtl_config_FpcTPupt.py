@@ -67,7 +67,6 @@ from idaes.core.util.exceptions import ConfigurationError
 refined_enrtl_method = True
 
 if refined_enrtl_method:
-
     # Import refined eNRTL method
     from refined_enrtl import rENRTL
 
