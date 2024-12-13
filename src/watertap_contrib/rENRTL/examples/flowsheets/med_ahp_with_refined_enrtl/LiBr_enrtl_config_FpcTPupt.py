@@ -55,8 +55,13 @@ from pyomo.environ import Param, units as pyunits
 from idaes.core import AqueousPhase, Solvent, Apparent, Anion, Cation
 from idaes.models.properties.modular_properties.base.generic_property import StateIndex
 from idaes.models.properties.modular_properties.state_definitions import FpcTP, FTPx
-from idaes.models.properties.modular_properties.pure.electrolyte import (relative_permittivity_constant,)
-from idaes.models.properties.modular_properties.eos.enrtl_reference_states import (Symmetric,Unsymmetric,)
+from idaes.models.properties.modular_properties.pure.electrolyte import (
+    relative_permittivity_constant,
+)
+from idaes.models.properties.modular_properties.eos.enrtl_reference_states import (
+    Symmetric,
+    Unsymmetric,
+)
 from idaes.core.util.exceptions import ConfigurationError
 
 refined_enrtl_method = True
@@ -77,26 +82,26 @@ if refined_enrtl_method:
         tau_solvent_ionpair = 7.915
         tau_ionpair_solvent = -4.109
     else:
-        raise ConfigurationError(f"The given hydration model is not supported by the refined model. "
-                                    "Please, try 'constant_hydration' or 'stepwise_hydration'.")
-        
+        raise ConfigurationError(
+            f"The given hydration model is not supported by the refined model. "
+            "Please, try 'constant_hydration' or 'stepwise_hydration'."
+        )
 
     print()
-    print("**Using " + hydration_model + " in refined eNRTL model in the LiBr config file")
+    print(
+        "**Using " + hydration_model + " in refined eNRTL model in the LiBr config file"
+    )
     print()
-
 
     def dens_mol_water_expr(b, s, T):
         return 1000 / 18e-3 * pyunits.mol / pyunits.m**3
-
 
     def relative_permittivity_expr(b, s, T):
         AM = 78.54003
         BM = 31989.38
         CM = 298.15
 
-        return AM + BM * (1 / T* pyunits.K - 1 / CM)
-
+        return AM + BM * (1 / T * pyunits.K - 1 / CM)
 
     configuration = {
         "components": {
@@ -178,7 +183,7 @@ if refined_enrtl_method:
             (
                 "mole_frac_phase_comp_apparent",
                 ("Liq", "LiBr"),
-            ): 1e3, 
+            ): 1e3,
             ("mole_frac_phase_comp_apparent", ("Liq", "H2O")): 1,
         },
     }
@@ -192,11 +197,12 @@ else:
 
     class ConstantVolMol:
         def build_parameters(b):
-            b.vol_mol_pure = Param(initialize=18e-6, units=pyunits.m**3 / pyunits.mol, mutable=True)
+            b.vol_mol_pure = Param(
+                initialize=18e-6, units=pyunits.m**3 / pyunits.mol, mutable=True
+            )
 
         def return_expression(b, cobj, T):
             return cobj.vol_mol_pure
-
 
     configuration = {
         "components": {
@@ -216,16 +222,12 @@ else:
             "Li+": {
                 "type": Cation,
                 "charge": +1,
-                "parameter_data": {
-                    "mw": (6.941e-3, pyunits.kg / pyunits.mol)
-                }
+                "parameter_data": {"mw": (6.941e-3, pyunits.kg / pyunits.mol)},
             },
             "Br-": {
                 "type": Anion,
                 "charge": -1,
-                "parameter_data": {
-                    "mw": (79.904e-3, pyunits.kg / pyunits.mol)
-                }
+                "parameter_data": {"mw": (79.904e-3, pyunits.kg / pyunits.mol)},
             },
         },
         "phases": {
@@ -248,7 +250,7 @@ else:
         "temperature_ref": 298.15,
         "parameter_data": {
             "Liq_tau": {
-                ("H2O", "Li+, Br-"): 10.449, # from ref [4]
+                ("H2O", "Li+, Br-"): 10.449,  # from ref [4]
                 ("Li+, Br-", "H2O"): -5.348,
             }
         },

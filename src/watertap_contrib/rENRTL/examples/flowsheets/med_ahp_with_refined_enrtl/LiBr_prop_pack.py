@@ -15,7 +15,7 @@
 # information, respectively. These files are also available online at the URL
 # "https://github.com/watertap-org/watertap/"
 #
-# Authors: Nazia Aslam from the University of Connecticut and Soraya Rawlings 
+# Authors: Nazia Aslam from the University of Connecticut and Soraya Rawlings
 #################################################################################
 """
 Property package for LiBr 
@@ -116,8 +116,8 @@ class LiBrParameterData(PhysicalParameterBlock):
 
         # Parameters
         mw_comp_data = {
-            "H2O": 18.01528e-3, #from ref [1]
-            "TDS": 86.845e-3, #from ref [2]
+            "H2O": 18.01528e-3,  # from ref [1]
+            "TDS": 86.845e-3,  # from ref [2]
         }
 
         self.mw_comp = Param(
@@ -126,10 +126,10 @@ class LiBrParameterData(PhysicalParameterBlock):
             units=pyunits.kg / pyunits.mol,
             doc="Molecular weight",
         )
-        # Density of pure water (kg/m3) 
+        # Density of pure water (kg/m3)
         # Validity: 0 < t < 180 oC; 0 < S < 0.16 kg/kg
         # from ref [3]
-        
+
         dens_units = pyunits.kg / pyunits.m**3
         t_inv_units = pyunits.K**-1
         s_inv_units = pyunits.kg / pyunits.g
@@ -165,7 +165,7 @@ class LiBrParameterData(PhysicalParameterBlock):
             doc="Mass density parameter A5 for pure water",
         )
 
-        # Density of LiBr solution (kg/m3)   
+        # Density of LiBr solution (kg/m3)
         # Validity: 0 < t < 200 oC; 0.2 < X < 0.65
         # from ref [4]
         self.dens_mass_param_B1 = pyo.Param(
@@ -189,14 +189,14 @@ class LiBrParameterData(PhysicalParameterBlock):
         self.dens_mass_param_B4 = pyo.Param(
             within=Reals,
             initialize=0.333393,
-            units=dens_units/pyunits.K,
+            units=dens_units / pyunits.K,
             doc="Mass density parameter B4",
         )
-        
+
         self.dens_mass_param_B5 = pyo.Param(
             within=Reals,
             initialize=0.571749,
-            units=dens_units/pyunits.K,
+            units=dens_units / pyunits.K,
             doc="Mass density parameter B5",
         )
 
@@ -262,7 +262,7 @@ class LiBrParameterData(PhysicalParameterBlock):
         )
 
         # Saturation temp (boiling temp) in K of a LiBr solution given pressure and mass fraction of LiBr
-        # from ref [4] 
+        # from ref [4]
         a_list = ["a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10", "a11"]
         b_list = ["b1", "b2", "b3", "b4", "b5", "b6", "b7", "b8", "b9", "b10", "b11"]
         self.set_a = pyo.Set(initialize=a_list)
@@ -295,33 +295,33 @@ class LiBrParameterData(PhysicalParameterBlock):
         }
 
         # Refrigerant saturation pressure at refrence saturation temperature
-        # Validity: 0.45 < X < 0.70 
+        # Validity: 0.45 < X < 0.70
         # from ref [5]
         self.pressure_sat_param_A1 = pyo.Param(
             within=Reals,
-            initialize=7.05, 
-            units = pyunits.dimensionless,
+            initialize=7.05,
+            units=pyunits.dimensionless,
             doc="Saturation pressure parameter A1",
         )
-        
+
         self.pressure_sat_param_A2 = pyo.Param(
-        within=Reals,
-        initialize=-1596.49,
-        units=pyunits.K,
-        doc="Saturation pressure parameter A2",
+            within=Reals,
+            initialize=-1596.49,
+            units=pyunits.K,
+            doc="Saturation pressure parameter A2",
         )
-        
+
         self.pressure_sat_param_A3 = pyo.Param(
-        within=Reals,
-        initialize=-104095.5, 
-        units=pyunits.K**2,
-        doc="Saturation pressure parameter A3",
+            within=Reals,
+            initialize=-104095.5,
+            units=pyunits.K**2,
+            doc="Saturation pressure parameter A3",
         )
-        
+
         # Water vapor saturation temperature (K) at given pressure
         # Pressure P(start = 101325.0,min=0.01)
         # reverse Antoinne's equation
-        
+
         t_units = pyunits.K
         self.temperature_sat_solvent_param_A1 = pyo.Param(
             within=Reals,
@@ -342,7 +342,7 @@ class LiBrParameterData(PhysicalParameterBlock):
             doc="Parameter A3",
         )
 
-        # Heat capacity of LiBr solution (J/(kg K) 
+        # Heat capacity of LiBr solution (J/(kg K)
         # Assumption: 0.4 < X < 0.7
         # from ref [5]
         cp_units = pyunits.J / (pyunits.kg * pyunits.K)
@@ -464,6 +464,7 @@ class LiBrParameterData(PhysicalParameterBlock):
                 "temperature": pyunits.K,
             }
         )
+
 
 # This Class contains methods which should be applied to Property Blocks as a whole, rather than individual elements of indexed Property Blocks.
 class _LiBrStateBlock(StateBlock):
@@ -714,10 +715,7 @@ class LiBrStateBlockData(StateBlockData):
         self.flow_mass_phase_comp = pyo.Var(
             self.params.phase_list,
             self.params.component_list,
-            initialize={
-                ("Liq", "H2O"): 0.65,
-                ("Liq", "TDS"): 0.35
-            },
+            initialize={("Liq", "H2O"): 0.65, ("Liq", "TDS"): 0.35},
             bounds=(0.0, None),
             domain=NonNegativeReals,
             units=pyunits.kg / pyunits.s,
@@ -763,7 +761,7 @@ class LiBrStateBlockData(StateBlockData):
             rule=rule_mass_frac_phase_comp,
         )
 
-    # Density of LiBr solution (kg/m3)   
+    # Density of LiBr solution (kg/m3)
     # Validity: 0 < t < 200 oC; 0.2 < X < 0.65
     # from ref [4]
     def _dens_mass_phase(self):
@@ -774,24 +772,21 @@ class LiBrStateBlockData(StateBlockData):
             units=pyunits.kg / pyunits.m**3,
             doc="Mass density of LiBr in water",
         )
+
         def rule_dens_mass_phase(b, p):
-            t = b.temperature - 273.15*pyunits.K
+            t = b.temperature - 273.15 * pyunits.K
             s = b.mass_frac_phase_comp[p, "TDS"]
             dens_mass = (
-                b.params.dens_mass_param_B1 
+                b.params.dens_mass_param_B1
                 + b.params.dens_mass_param_B2 * s
                 + b.params.dens_mass_param_B3 * s**2
-                - (
-                    b.params.dens_mass_param_B4
-                    + b.params.dens_mass_param_B5 * s
-                ) * t
+                - (b.params.dens_mass_param_B4 + b.params.dens_mass_param_B5 * s) * t
             )
             return b.dens_mass_phase[p] == dens_mass
 
         self.eq_dens_mass_phase = Constraint(
             self.params.phase_list, rule=rule_dens_mass_phase
         )
-
 
     def _dens_mass_solvent(self):
         self.dens_mass_solvent = pyo.Var(
@@ -803,7 +798,7 @@ class LiBrStateBlockData(StateBlockData):
 
         # from ref [3]
         def rule_dens_mass_solvent(b):
-            t = b.temperature - 273.15 
+            t = b.temperature - 273.15
             dens_mass_w = (
                 b.params.dens_mass_param_A1
                 + b.params.dens_mass_param_A2 * t
@@ -941,23 +936,23 @@ class LiBrStateBlockData(StateBlockData):
         )
 
         def rule_visc_d_phase(b, p):
-            t = b.temperature # in K
+            t = b.temperature  # in K
             s = b.mass_frac_phase_comp[p, "TDS"]
             factor_visc = 100 * pyunits.dimensionless
             A1 = (
                 b.params.visc_d_param_A
                 + b.params.visc_d_param_B * factor_visc * s
-                - b.params.visc_d_param_C * (factor_visc * s)**2
+                - b.params.visc_d_param_C * (factor_visc * s) ** 2
             )
             A2 = (
                 b.params.visc_d_param_D
                 - b.params.visc_d_param_E * factor_visc * s
-                + b.params.visc_d_param_F * (factor_visc * s)**2
+                + b.params.visc_d_param_F * (factor_visc * s) ** 2
             )
             A3 = (
                 b.params.visc_d_param_G
                 - b.params.visc_d_param_H * factor_visc * s
-                + b.params.visc_d_param_I * (factor_visc * s)**2
+                + b.params.visc_d_param_I * (factor_visc * s) ** 2
             )
             B = A1 + (A2 / t) + A3 * pyo.log(t)
             return b.visc_d_phase[p] == 0.001 * pyunits.dimensionless * pyo.exp(B)
@@ -965,10 +960,10 @@ class LiBrStateBlockData(StateBlockData):
         self.eq_visc_d_phase = Constraint(
             self.params.phase_list, rule=rule_visc_d_phase
         )
-        
+
     # Enthalpy of LiBr solution (kJ/kg)
     # Assumptions: subsaturated, incompressible H(T,P)=H(T) with the same reference state as the steam tables
-    # Validity: 0.4 < X < 0.7 
+    # Validity: 0.4 < X < 0.7
     def _enth_mass_phase(self):
         self.enth_mass_phase = pyo.Var(
             self.params.phase_list,
@@ -979,18 +974,17 @@ class LiBrStateBlockData(StateBlockData):
         )
 
         def rule_enth_mass_phase(b, p):
-            t = b.temperature # in K
+            t = b.temperature  # in K
             X = b.mass_frac_phase_comp[p, "TDS"]
             t0 = 273.15 * pyunits.K
-            cp = b.cp_mass_phase["Liq"] # in J/(kg K)
+            cp = b.cp_mass_phase["Liq"]  # in J/(kg K)
 
             h_libr = cp * (t - t0)
 
             return b.enth_mass_phase[p] == h_libr
 
         self.eq_enth_mass_phase = Constraint(
-            self.params.phase_list,
-            rule=rule_enth_mass_phase
+            self.params.phase_list, rule=rule_enth_mass_phase
         )
 
     def _enth_flow(self):
@@ -1003,7 +997,7 @@ class LiBrStateBlockData(StateBlockData):
             )
 
         self.enth_flow = Expression(rule=rule_enth_flow)
- 
+
     # Water vapor saturation temperature (K) at given pressure
     # Pressure P(start = 101325.0,min=0.01)
     # reverse Antoinne's equation
@@ -1012,7 +1006,7 @@ class LiBrStateBlockData(StateBlockData):
             initialize=298.15,
             bounds=(1, 1e3),
             units=pyunits.K,
-            doc="Vapor temperature of water"
+            doc="Vapor temperature of water",
         )
 
         def rule_temperature_sat_solvent(b):
@@ -1021,87 +1015,88 @@ class LiBrStateBlockData(StateBlockData):
             tsat_w = (
                 b.params.temperature_sat_solvent_param_A1
                 - b.params.temperature_sat_solvent_param_A2
-                / (
-                    pyo.log(p / factor_pa)
-                    - b.params.temperature_sat_solvent_param_A3
-                )
+                / (pyo.log(p / factor_pa) - b.params.temperature_sat_solvent_param_A3)
             )
-                      
+
             return b.temperature_sat_solvent == tsat_w
 
         self.eq_temperature_sat_solvent = Constraint(rule=rule_temperature_sat_solvent)
-    
+
     # Saturation temp (boiling temp) in K of a LiBr solution given pressure and mass fraction of LiBr
     # from ref [4]
     def _temperature_sat(self):
         self.temperature_sat = pyo.Var(
-            initialize=298.15,
-            bounds=(1, 1e3),
-            units=pyunits.K,
-            doc="Vapor temperature"
+            initialize=298.15, bounds=(1, 1e3), units=pyunits.K, doc="Vapor temperature"
         )
 
-        def rule_temperature_sat(b):         
+        def rule_temperature_sat(b):
             t = b.temperature
-            tref = b.temperature_sat_solvent #water vapor saturation temperature
-            s = (
-                b.mass_frac_phase_comp["Liq", "TDS"]
-            )
+            tref = b.temperature_sat_solvent  # water vapor saturation temperature
+            s = b.mass_frac_phase_comp["Liq", "TDS"]
             s1 = (
                 b.params.temperature_sat_param_a["a1"]
                 + b.params.temperature_sat_param_a["a2"] * s
-                + b.params.temperature_sat_param_a["a3"] * s ** 2
-                + b.params.temperature_sat_param_a["a4"] * s ** 3
-                + b.params.temperature_sat_param_a["a5"] * s ** 4
-                + b.params.temperature_sat_param_a["a6"] * s ** 5
-                + b.params.temperature_sat_param_a["a7"] * s ** 6
-                + b.params.temperature_sat_param_a["a8"] * s ** 7
-                + b.params.temperature_sat_param_a["a9"] * s ** 8
-                + b.params.temperature_sat_param_a["a10"] * s ** 9
-                + b.params.temperature_sat_param_a["a11"] * s ** 10
+                + b.params.temperature_sat_param_a["a3"] * s**2
+                + b.params.temperature_sat_param_a["a4"] * s**3
+                + b.params.temperature_sat_param_a["a5"] * s**4
+                + b.params.temperature_sat_param_a["a6"] * s**5
+                + b.params.temperature_sat_param_a["a7"] * s**6
+                + b.params.temperature_sat_param_a["a8"] * s**7
+                + b.params.temperature_sat_param_a["a9"] * s**8
+                + b.params.temperature_sat_param_a["a10"] * s**9
+                + b.params.temperature_sat_param_a["a11"] * s**10
             )
             s2 = (
                 b.params.temperature_sat_param_b["b1"]
                 + b.params.temperature_sat_param_b["b2"] * s
-                + b.params.temperature_sat_param_b["b3"] * s ** 2
-                + b.params.temperature_sat_param_b["b4"] * s ** 3
-                + b.params.temperature_sat_param_b["b5"] * s ** 4
-                + b.params.temperature_sat_param_b["b6"] * s ** 5
-                + b.params.temperature_sat_param_b["b7"] * s ** 6
-                + b.params.temperature_sat_param_b["b8"] * s ** 7
-                + b.params.temperature_sat_param_b["b9"] * s ** 8
-                + b.params.temperature_sat_param_b["b10"] * s ** 9
-                + b.params.temperature_sat_param_b["b11"] * s ** 10
+                + b.params.temperature_sat_param_b["b3"] * s**2
+                + b.params.temperature_sat_param_b["b4"] * s**3
+                + b.params.temperature_sat_param_b["b5"] * s**4
+                + b.params.temperature_sat_param_b["b6"] * s**5
+                + b.params.temperature_sat_param_b["b7"] * s**6
+                + b.params.temperature_sat_param_b["b8"] * s**7
+                + b.params.temperature_sat_param_b["b9"] * s**8
+                + b.params.temperature_sat_param_b["b10"] * s**9
+                + b.params.temperature_sat_param_b["b11"] * s**10
             )
             tsat = (
-                s1 * pyunits.K
-                + (tref - 273.15 * pyunits.K) * s2
-                + 273.15 * pyunits.K
+                s1 * pyunits.K + (tref - 273.15 * pyunits.K) * s2 + 273.15 * pyunits.K
             )
 
-            
             return b.temperature_sat == tsat
 
         self.eq_temperature_sat = Constraint(rule=rule_temperature_sat)
 
     # Saturation pressure of refrigerant
-    # from ref [5] 
+    # from ref [5]
     def _pressure_sat(self):
         self.pressure_sat = pyo.Var(
-            initialize=1e6,
-            bounds=(1, 1e10),
-            units=pyunits.Pa,
-            doc="Vapor pressure"
+            initialize=1e6, bounds=(1, 1e10), units=pyunits.Pa, doc="Vapor pressure"
         )
+
         def rule_pressure_sat(b):
-            tsat = b.temperature_sat #units in K
+            tsat = b.temperature_sat  # units in K
             scaling = 1000 * pyunits.dimensionless
 
-            return b.pressure_sat == (10**((b.params.pressure_sat_param_A1 + b.params.pressure_sat_param_A2/(tsat) + b.params.pressure_sat_param_A3/(tsat)**2)/scaling))*pyunits.Pa
+            return (
+                b.pressure_sat
+                == (
+                    10
+                    ** (
+                        (
+                            b.params.pressure_sat_param_A1
+                            + b.params.pressure_sat_param_A2 / (tsat)
+                            + b.params.pressure_sat_param_A3 / (tsat) ** 2
+                        )
+                        / scaling
+                    )
+                )
+                * pyunits.Pa
+            )
 
         self.eq_pressure_sat = Constraint(rule=rule_pressure_sat)
-    
-    # Heat capacity of LiBr solution (J/(kg K) 
+
+    # Heat capacity of LiBr solution (J/(kg K)
     # from ref [5]
     def _cp_mass_phase(self):
         self.cp_mass_phase = pyo.Var(
@@ -1115,16 +1110,16 @@ class LiBrStateBlockData(StateBlockData):
         def rule_cp_mass_phase(b, p):
             s = b.mass_frac_phase_comp[p, "TDS"]
             factor = 100
-            cp = (b.params.cp_phase_param_A1 * (s * factor)**2 
-                - b.params.cp_phase_param_A2 * s * factor 
+            cp = (
+                b.params.cp_phase_param_A1 * (s * factor) ** 2
+                - b.params.cp_phase_param_A2 * s * factor
                 + b.params.cp_phase_param_A3
             )
 
             return b.cp_mass_phase[p] == cp
 
         self.eq_cp_mass_phase = Constraint(
-            self.params.phase_list,
-            rule=rule_cp_mass_phase
+            self.params.phase_list, rule=rule_cp_mass_phase
         )
 
     # Thermal conductivity(W/(m K)) of LiBr solution at T(K) and X(g LiBr/g soln)
@@ -1149,22 +1144,20 @@ class LiBrStateBlockData(StateBlockData):
                 b.params.therm_cond_phase_param_5 * s
                 + b.params.therm_cond_phase_param_6
             )
-            D2 = (
-                (K3 - K1) * (313 * pyunits.K - t) / (20 * pyunits.K)
-            )
+            D2 = (K3 - K1) * (313 * pyunits.K - t) / (20 * pyunits.K)
 
             K = K1 + D2
-                
+
             # If T >= 313, use this expression:
             # K2 = (
             #     b.params.therm_cond_phase_param_3 * s
             #     + b.params.therm_cond_phase_param_4
             # )
-            # K = K1 + D1     
+            # K = K1 + D1
             # D1 = (
-            #     (K2 - K1) * (t - 313 * pyunits.K) / (20 * pyunits.K) 
+            #     (K2 - K1) * (t - 313 * pyunits.K) / (20 * pyunits.K)
             # )
-            return  b.therm_cond_phase[p] == K
+            return b.therm_cond_phase[p] == K
 
         self.eq_therm_cond_phase = Constraint(
             self.params.phase_list, rule=rule_therm_cond_phase
@@ -1340,7 +1333,7 @@ class LiBrStateBlockData(StateBlockData):
         # property relationships with no index, simple constraint
         v_str_lst_simple = [
             "dens_mass_solvent",
-             "pressure_sat",
+            "pressure_sat",
         ]
         for v_str in v_str_lst_simple:
             if self.is_property_constructed(v_str):

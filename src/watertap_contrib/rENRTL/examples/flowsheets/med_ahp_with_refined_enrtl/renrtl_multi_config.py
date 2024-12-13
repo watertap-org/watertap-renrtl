@@ -83,8 +83,8 @@ if hydration_model == "constant_hydration":
 else:
     raise ConfigurationError(
         f"The given hydration model is not supported by the refined model. "
-        "Please, try 'constant_hydration'.")
-    
+        "Please, try 'constant_hydration'."
+    )
 
 
 def dens_mol_water_expr(b, s, T):
@@ -118,7 +118,7 @@ configuration = {
         "Na2SO4": {
             "type": Apparent,
             "dissociation_species": {"Na+": 2, "SO4_2-": 1},
-            "parameter_data": {"hydration_constant":1.022},
+            "parameter_data": {"hydration_constant": 1.022},
         },
         "Na+": {
             "type": Cation,
@@ -136,11 +136,11 @@ configuration = {
             "type": Anion,
             "charge": -2,
             "parameter_data": {
-                "mw": 96.064e-3 ,
-                "ionic_radius": 2.40 ,
-                "partial_vol_mol": 26.8 ,
-                "hydration_number": -0.31 ,
-                 "min_hydration_number": 0,
+                "mw": 96.064e-3,
+                "ionic_radius": 2.40,
+                "partial_vol_mol": 26.8,
+                "hydration_number": -0.31,
+                "min_hydration_number": 0,
                 "number_sites": 8,
             },
         },
@@ -204,11 +204,11 @@ configuration = {
         (
             "mole_frac_phase_comp_apparent",
             ("Liq", "NaCl"),
-        ): 1e3,  
+        ): 1e3,
         (
             "mole_frac_phase_comp_apparent",
             ("Liq", "Na2SO4"),
-        ): 1e3, 
+        ): 1e3,
         ("mole_frac_phase_comp_apparent", ("Liq", "H2O")): 1,
     },
 }
