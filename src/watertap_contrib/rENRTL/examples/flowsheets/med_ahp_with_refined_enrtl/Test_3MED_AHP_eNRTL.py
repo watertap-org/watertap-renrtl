@@ -89,7 +89,7 @@ import watertap.property_models.water_prop_pack as props_w
 import LiBr_prop_pack as props_libr
 
 # Import configuration dictionaries
-import LiBr_entrl_config_FpcTPupt
+import LiBr_enrtl_config_FpcTPupt
 
 module = __import__("3MED_AHP_eNRTL")
 
