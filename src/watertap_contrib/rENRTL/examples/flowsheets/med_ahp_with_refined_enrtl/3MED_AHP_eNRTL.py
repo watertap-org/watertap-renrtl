@@ -978,7 +978,7 @@ def set_model_inputs(m):
     m.fs.tblock.properties_out[0].flow_mass_phase_comp["Liq", "TDS"].fix(0)
 
 
-def initialize(m, solver=None, outlvl=idaeslog.NOTSET):
+def initialize(m, solver=None, optarg=None, outlvl=idaeslog.NOTSET):
     # Initialize feed
     m.fs.feed_sw.properties[0].mass_frac_phase_comp["Liq", "TDS"]
     solver.solve(m.fs.feed_sw)
