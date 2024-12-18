@@ -104,7 +104,7 @@ solve_nonideal = True
 run_multi = False
 
 class TestMED:
-    @pytest.fixture(scope=class)
+    @pytest.fixture(scope="class")
     def test_create_model(self)
     m = create_model()
     return m
