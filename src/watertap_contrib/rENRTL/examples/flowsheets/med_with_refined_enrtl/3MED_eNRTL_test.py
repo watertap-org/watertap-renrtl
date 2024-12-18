@@ -105,7 +105,7 @@ run_multi = False
 
 class TestMED:
     @pytest.fixture(scope="class")
-    def test_create_model(self)
+    def MED_eNRTL (self):
     m = create_model()
     return m
     
