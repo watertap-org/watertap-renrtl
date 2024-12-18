@@ -103,12 +103,15 @@ logging.getLogger("pyomo.repn.plugins.nl_writer").setLevel(logging.ERROR)
 solve_nonideal = True
 run_multi = False
 
-
 class TestMED:
+    @pytest.fixture(scope=class)
+    def test_create_model(self)
+    m = create_model()
+    return m
+    
     @pytest.mark.unit
-    def test_create_model(self, MED_eNRTL):
+    def test_build_model(self, MED_eNRTL):
         m = MED_eNRTL
-        create_model(m)
 
         # test model set up
         assert isinstance(m, ConcreteModel)
