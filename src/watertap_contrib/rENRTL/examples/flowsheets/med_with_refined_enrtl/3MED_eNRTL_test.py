@@ -106,8 +106,8 @@ run_multi = False
 class TestMED:
     @pytest.fixture(scope="class")
     def MED_eNRTL (self):
-    m = create_model()
-    return m
+        m = create_model()
+        return m
     
     @pytest.mark.unit
     def test_build_model(self, MED_eNRTL):
@@ -169,6 +169,7 @@ class TestMED:
     @pytest.mark.component
     def test_set_model_inputs(self, MED_eNRTL):
         m = MED_eNRTL
+        set_scaling(m)
         set_model_inputs(m)
 
         # check fixed variables
@@ -205,14 +206,14 @@ class TestMED:
         )
 
         # Pressure changer
-        assert m.fs.pump.outlet.pressure.is_fixed()
-        assert value(m.fs.pump.outlet.pressure) == 30000
-        assert m.fs.pump.efficiency_pump.is_fixed()
-        assert value(m.fs.pump.efficiency_pump) == 0.8
+        assert m.fs.pump.outlet.pressure[0].is_fixed()
+        assert value(m.fs.pump.outlet.pressure[0]) == 30000
+        assert m.fs.pump.efficiency_pump[0].is_fixed()
+        assert value(m.fs.pump.efficiency_pump[0]) == 0.8
 
         # Steam generator
-        assert m.fs.steam_generator.outlet.temperature.is_fixed()
-        assert value(m.fs.steam_generator.outlet.temperature) == 69.1 + 273.15
+        assert m.fs.steam_generator.outlet.temperature[0].is_fixed()
+        assert value(m.fs.steam_generator.outlet.temperature[0]) == 69.1 + 273.15
         assert m.fs.steam_generator.control_volume.heat[0].is_fixed()
         assert value(m.fs.steam_generator.control_volume.heat[0]) == 96370
 
@@ -267,8 +268,17 @@ class TestMED:
     @pytest.mark.component
     @pytest.mark.requires_idaes_solver
     def test_initialize(self, MED_eNRTL):
+        optarg = {"max_iter": 500, "tol": 1e-8}
+        solver = get_solver("ipopt", optarg)
         m = MED_eNRTL
-        initialize(m)
+        
+        m = create_model()
+
+        set_scaling(m)
+
+        set_model_inputs(m)
+
+        initialize(m, solver=solver)
 
         assert value(m.fs.evaporator[1].U) == pytest.approx(500, rel=1e-3)
         assert value(m.fs.evaporator[1].delta_temperature_out) == pytest.approx(
@@ -282,8 +292,8 @@ class TestMED:
         assert value(m.fs.evaporator[3].delta_temperature_out) == pytest.approx(
             8, rel=1e-3
         )
-        assert value(m.fs.pump.outlet.pressure) == pytest.approx(30000, rel=1e-3)
-        assert value(m.fs.steam_generator.outlet.temperature) == pytest.approx(
+        assert value(m.fs.pump.outlet.pressure[0]) == pytest.approx(30000, rel=1e-3)
+        assert value(m.fs.steam_generator.outlet.temperature[0]) == pytest.approx(
             69.1 + 273.15, rel=1e3
         )
         assert value(m.fs.steam_generator.control_volume.heat[0]) == pytest.approx(
@@ -295,13 +305,23 @@ class TestMED:
     @pytest.mark.component
     @pytest.mark.requires_idaes_solver
     def test_model_analysis(self, MED_eNRTL):
+        optarg = {"max_iter": 500, "tol": 1e-8}
+        solver = get_solver("ipopt", optarg)
+        
         m = MED_eNRTL
-        model_analysis(m)
 
-        solver = get_solver()
+        set_scaling(m)
+
+        set_model_inputs(m)
+
         initialize(m, solver=solver)
 
+        add_bounds(m)
+        
+        model_analysis(m,water_rec=0.6)
+
         results = solver.solve(m, tee=False)
+        
         assert_optimal_termination(results)
 
         # additional constraints, variables, and expressions
