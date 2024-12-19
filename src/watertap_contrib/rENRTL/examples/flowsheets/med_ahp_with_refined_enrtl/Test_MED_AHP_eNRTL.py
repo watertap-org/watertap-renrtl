@@ -92,7 +92,7 @@ import LiBr_prop_pack as props_libr
 import LiBr_enrtl_config_FpcTPupt
 
 # from Tri_MED_AHP_eNRTL import *
-module = __import__("3MED_AHP_eNRTL")
+module = __import__("threeeffect_med_ahp_eNRTL")
 
 # Access the functions from the module
 populate_enrtl_state_vars_single = module.populate_enrtl_state_vars_single
