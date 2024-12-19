@@ -79,7 +79,7 @@ from watertap.unit_models.mvc.components import Evaporator, Condenser
 import enrtl_config_FpcTP  # single electrolyte
 import renrtl_multi_config  # multi electrolytes
 
-module = __import__("MED_eNRTL_test")
+module = __import__("MED_eNRTL")
 
 # Access the functions from the module
 populate_enrtl_state_vars = module.populate_enrtl_state_vars
