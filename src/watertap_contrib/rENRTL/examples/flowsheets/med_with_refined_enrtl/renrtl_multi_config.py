@@ -62,7 +62,7 @@ from idaes.models.properties.modular_properties.pure.electrolyte import (
 from idaes.core.util.exceptions import ConfigurationError
 
 # Import multielectrolytes refined eNRTL method
-from refined_enrtl_multi import rENRTL
+from watertap_contrib.rENRTL.examples.flowsheets.mvc_with_refined_enrtl.refined_enrtl_multi.py import rENRTL
 
 print()
 print("**Using constant hydration refined eNRTL model in the multi config file")
