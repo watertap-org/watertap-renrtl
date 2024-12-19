@@ -336,7 +336,6 @@ class TestMED:
         assert isinstance(m.fs.total_water_produced_gpm, Expression)
         assert isinstance(m.fs.performance_ratio, Expression)
 
-        # based on values at 60% water recovery from [2]
         assert m.fs.steam_generator.outlet.temperature[0].value == pytest.approx(
             69.1 + 273.15, rel=1e-3
         )
