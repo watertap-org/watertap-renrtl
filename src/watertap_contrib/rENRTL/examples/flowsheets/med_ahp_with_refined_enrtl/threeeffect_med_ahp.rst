@@ -6,7 +6,7 @@ and produces steam to drive the MED process. The superheated steam from the gene
 The MED and the AHP loop is connected through the translator block and the generator unit models.
 The modeling of the Multi-Effect Distillation (MED) system with an Absorption Heat Pump (AHP) system is achieved through the connection of the individual unit models to create a flowsheet of the system and the inclusion of ideal and non-ideal thermodynamic models.
 
-.. figure:: 3MED_AHP.png
+.. figure:: threeeffect_med_ahp.png
    :align: center
    :width: 50%
 
