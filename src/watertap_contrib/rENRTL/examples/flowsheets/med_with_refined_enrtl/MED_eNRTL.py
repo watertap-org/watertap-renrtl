@@ -141,7 +141,7 @@ def populate_enrtl_state_vars_multi(blk, base="FpcTP"):
 
     if base == "FpcTP":
         feed_flow_mass = 0.15  # kg/s
-        feed_mass_frac_comp = {"Na+": 0.003022, "Cl-": 0.004601, "SO4_2-": 0.01263} # Na =  0.009028797225342378
+        feed_mass_frac_comp = {"Na+": 0.003022, "Cl-": 0.004601, "SO4_2-": 0.01263}
         feed_mass_frac_comp["H2O"] = 1 - sum(x for x in feed_mass_frac_comp.values())
         mw_comp = {
             "H2O": 18.015e-3,

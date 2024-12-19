@@ -79,7 +79,7 @@ from watertap.unit_models.mvc.components import Evaporator, Condenser
 import enrtl_config_FpcTP  # single electrolyte
 import renrtl_multi_config  # multi electrolytes
 
-module = __import__("MED_eNRTL")
+module = __import__("MED_eNRTL_test")
 
 # Access the functions from the module
 populate_enrtl_state_vars = module.populate_enrtl_state_vars
@@ -323,7 +323,7 @@ class TestMED:
 
         results = solver.solve(m, tee=False)
 
-        # assert_optimal_termination(results)
+        assert_optimal_termination(results)
 
         # additional constraints, variables, and expressions
         assert isinstance(m.fs.gen_heat_bound, Constraint)

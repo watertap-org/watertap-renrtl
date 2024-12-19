@@ -585,17 +585,12 @@ def set_model_inputs(m):
     # Seawater feed flowrate was determined from backcalculation from provided experimental SEC,Qin value, and water recovery % from [2]
     # TDS flowrate = [(TDS concentration=23,170ppm * Seawater feed flowrate=0.15)]/1.0e6
     m.fs.evaporator[1].inlet_feed.flow_mass_phase_comp[0, "Liq", "H2O"].fix(
-        0.1465245
+        0.15
     )  # kg/s
-    @m.fs.Constraint()
-    def TDS_feed(b):
-        return (
-                0.023170/b.properties_feed.mw_comp["TDS"]*0.15 == b.evaporator[1].inlet_feed.flow_mass_phase_comp[0, "Liq", "TDS"]
-        )
     
-    # m.fs.evaporator[1].inlet_feed.flow_mass_phase_comp[0, "Liq", "TDS"].fix(
-    #     0.0035
-    # )  # kg/s
+    m.fs.evaporator[1].inlet_feed.flow_mass_phase_comp[0, "Liq", "TDS"].fix(
+        0.0035
+    )  # kg/s
     m.fs.evaporator[1].inlet_feed.temperature[0].fix(27 + 273.15)  # K
     m.fs.evaporator[1].inlet_feed.pressure[0].fix(101325)  # Pa
 
