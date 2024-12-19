@@ -6,7 +6,7 @@ The flowsheet consists primarily of evaporators, condensers, a pump, and a heate
 In this flowsheet, there is a loop between the steam generator and the condenser of the first effect in which the raising steam is used to power the MED system [1]. 
 Modeling the Multi-Effect Distillation (MED) system is performed through the connection of individual unit models in the flowsheet and the inclusion of choice of ideal or different non-ideal thermodynamic models. 
 
-.. figure:: 3MED_Only.png
+.. figure:: threeeffect_med.png
    :align: center
    :width: 50%
 
