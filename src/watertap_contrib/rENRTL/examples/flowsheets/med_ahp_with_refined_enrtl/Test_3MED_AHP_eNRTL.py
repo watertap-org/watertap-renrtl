@@ -90,6 +90,7 @@ import LiBr_prop_pack as props_libr
 
 # Import configuration dictionaries
 import LiBr_enrtl_config_FpcTPupt
+
 # from Tri_MED_AHP_eNRTL import *
 module = __import__("3MED_AHP_eNRTL")
 
@@ -134,7 +135,7 @@ class TestMED:
     def MED_AHP_eNRTL(self):
         m = create_model()
         return m
-    
+
     @pytest.fixture(scope="class")
     def Initialize_Setup(self):
         optarg = {"max_iter": 500, "tol": 1e-8}
@@ -146,11 +147,11 @@ class TestMED:
 
         set_model_inputs(m)
 
-        initialize(m, solver=solver, optarg = optarg)
+        initialize(m, solver=solver, optarg=optarg)
 
         add_bounds(m)
         return m
-    
+
     @pytest.mark.unit
     def test_create_model(self, MED_AHP_eNRTL):
         m = MED_AHP_eNRTL
@@ -206,10 +207,12 @@ class TestMED:
                 m.fs.condenser[1].inlet,
             ),
             m.fs.absorber_to_evaporator_feed: (
-                m.fs.absorber.shell_outlet, m.fs.evaporator[1].inlet_feed
+                m.fs.absorber.shell_outlet,
+                m.fs.evaporator[1].inlet_feed,
             ),
             m.fs.evap1brine_to_evap2feed: (
-                m.fs.evaporator[1].outlet_brine, m.fs.evaporator[2].inlet_feed
+                m.fs.evaporator[1].outlet_brine,
+                m.fs.evaporator[2].inlet_feed,
             ),
             m.fs.evap1vapor_to_cond2: (
                 m.fs.evaporator[1].outlet_vapor,
@@ -427,7 +430,7 @@ class TestMED:
     @pytest.mark.component
     @pytest.mark.requires_idaes_solver
     def test_initialize(self, Initialize_Setup):
-        
+
         m = Initialize_Setup
 
         assert value(
@@ -464,12 +467,10 @@ class TestMED:
     def test_add_bounds(self, Initialize_Setup):
         m = Initialize_Setup
         for e in m.fs.set_evaporators:
-            assert m.fs.evaporator[e].area.lb == 10  
-            assert m.fs.evaporator[e].area.ub is None  
+            assert m.fs.evaporator[e].area.lb == 10
+            assert m.fs.evaporator[e].area.ub is None
             assert m.fs.evaporator[e].outlet_brine.temperature[0].ub == 73 + 273.15
-    
 
-        
     @pytest.mark.component
     @pytest.mark.requires_idaes_solver
     def test_model_analysis(self, Initialize_Setup):
@@ -483,7 +484,6 @@ class TestMED:
         results = solver.solve(m, tee=False)
 
         assert_optimal_termination(results)
-                    
 
         # additional constraints, variables, and expressions
 
