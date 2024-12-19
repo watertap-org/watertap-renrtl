@@ -90,7 +90,7 @@ import LiBr_prop_pack as props_libr
 
 # Import configuration dictionaries
 import LiBr_enrtl_config_FpcTPupt
-
+# from Tri_MED_AHP_eNRTL import *
 module = __import__("3MED_AHP_eNRTL")
 
 # Access the functions from the module
@@ -122,7 +122,6 @@ solve_nonideal_AHP = True  # AHP loop
 # NOTE: Make sure the config files, LiBr_enrtl_config_FpcTPupt and enrtl_config_FpcTP or renrtl_multi_config are using the same refined eNRTL model
 run_multi = True
 
-optarg = {"max_iter": 500, "tol": 1e-8}
 
 if run_multi:
     import renrtl_multi_config  # multi electrolytes
@@ -135,7 +134,23 @@ class TestMED:
     def MED_AHP_eNRTL(self):
         m = create_model()
         return m
+    
+    @pytest.fixture(scope="class")
+    def Initialize_Setup(self):
+        optarg = {"max_iter": 500, "tol": 1e-8}
+        solver = get_solver("ipopt", optarg)
 
+        m = create_model()
+
+        set_scaling(m)
+
+        set_model_inputs(m)
+
+        initialize(m, solver=solver, optarg = optarg)
+
+        add_bounds(m)
+        return m
+    
     @pytest.mark.unit
     def test_create_model(self, MED_AHP_eNRTL):
         m = MED_AHP_eNRTL
@@ -190,12 +205,12 @@ class TestMED:
                 m.fs.generator.outlet_vapor,
                 m.fs.condenser[1].inlet,
             ),
-            # m.fs.absorber_to_evaporator_feed: Arc(
-            #     m.fs.absorber.shell_outlet, m.fs.evaporator[1].inlet_feed
-            # ),
-            # m.fs.evap1brine_to_evap2feed: Arc(
-            #     m.fs.evaporator[1].outlet_brine, m.fs.evaporator[2].inlet_feed
-            # ),
+            m.fs.absorber_to_evaporator_feed: (
+                m.fs.absorber.shell_outlet, m.fs.evaporator[1].inlet_feed
+            ),
+            m.fs.evap1brine_to_evap2feed: (
+                m.fs.evaporator[1].outlet_brine, m.fs.evaporator[2].inlet_feed
+            ),
             m.fs.evap1vapor_to_cond2: (
                 m.fs.evaporator[1].outlet_vapor,
                 m.fs.condenser[2].inlet,
@@ -411,17 +426,9 @@ class TestMED:
 
     @pytest.mark.component
     @pytest.mark.requires_idaes_solver
-    def test_initialize(self, MED_AHP_eNRTL):
-        m = MED_AHP_eNRTL
-
-        set_scaling(m)
-
-        set_model_inputs(m)
-
-        optarg = {"max_iter": 500, "tol": 1e-8}
-        solver = get_solver("ipopt", optarg)
-
-        initialize(m, solver=solver)
+    def test_initialize(self, Initialize_Setup):
+        
+        m = Initialize_Setup
 
         assert value(
             m.fs.absorber.overall_heat_transfer_coefficient[0]
@@ -451,30 +458,41 @@ class TestMED:
         )
 
         assert degrees_of_freedom(m) == 0
-
+        
     @pytest.mark.component
     @pytest.mark.requires_idaes_solver
-    def test_model_analysis(self, MED_AHP_eNRTL):
+    def test_add_bounds(self, Initialize_Setup):
+        m = Initialize_Setup
+        for e in m.fs.set_evaporators:
+            assert m.fs.evaporator[e].area.lb == 10  
+            assert m.fs.evaporator[e].area.ub is None  
+            assert m.fs.evaporator[e].outlet_brine.temperature[0].ub == 73 + 273.15
+    
+
+        
+    @pytest.mark.component
+    @pytest.mark.requires_idaes_solver
+    def test_model_analysis(self, Initialize_Setup):
         optarg = {"max_iter": 500, "tol": 1e-8}
         solver = get_solver("ipopt", optarg)
 
-        m = MED_AHP_eNRTL
-
-        set_scaling(m)
-
-        set_model_inputs(m)
-
-        initialize(m, solver=solver, optarg=optarg)
-
-        add_bounds(m)
+        m = Initialize_Setup
 
         model_analysis(m, water_rec=0.7)
 
         results = solver.solve(m, tee=False)
 
-        # assert_optimal_termination(results)
 
+        assert_optimal_termination(results)
+                    
         # additional constraints, variables, and expressions
+
+        # assert isinstance(m.fs.eq_upper_bound_generator_delta_temperature_in, Constraint)
+        # assert isinstance(m.fs.eq_upper_bound_generator_delta_temprature_out, Constraint)
+        # for e in m.fs.set2_evaporators:
+        #             assert isinstance(m.fs.eq_upper_bound_evaporators_pressure[e], Constraint)
+        # for e in m.fs.set_evaporators:
+        #             assert isinstance(m.fs.UA_term[e], Expression)
         assert isinstance(
             m.fs.eq_upper_bound_evaporators_delta_temprature_in, Constraint
         )
@@ -498,6 +516,6 @@ class TestMED:
         assert isinstance(m.fs.performance_ratio, Expression)
 
         # based on estimated values at 70% water recovery from [2]
-        # assert m.fs.generator.outlet.pressure.value == pytest.approx(30000, rel=1e-3)         E       AttributeError: '_ScalarEvaporator' object has no attribute 'outlet'
-        # assert m.fs.specific_energy_consumption.value == pytest.approx(205.00, rel=1e-3)      E       assert 747.7165460600193 == 205.0 ± 2.1e-01
-        # assert value(m.fs.performance_ratio) == pytest.approx(3.4, rel=1e-3)                   value doesn't match
+        # assert m.fs.generator.outlet.pressure.values == pytest.approx(30000, rel=1e-3)        # E       AttributeError: '_ScalarEvaporator' object has no attribute 'outlet'
+        # assert m.fs.specific_energy_consumption.value == pytest.approx(205.00, rel=1e-3)      #E       assert 747.7165460600193 == 205.0 ± 2.1e-01
+        # assert value(m.fs.performance_ratio) == pytest.approx(3.4, rel=1e-3)                    #E       assert 0.8615304269691892 == 3.4 ± 3.4e-03

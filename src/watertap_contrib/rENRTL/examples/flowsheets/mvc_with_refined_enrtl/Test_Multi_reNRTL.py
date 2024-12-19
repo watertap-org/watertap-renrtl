@@ -531,7 +531,7 @@ class Test_reNRTL_Multi(object):
         return m
 
     @pytest.fixture(scope="function")
-    def Retrieve_All_Properties(self, model, ExpData):
+    def Retrieve_All_Properties(self, ExpData):
         optarg = {
             "max_iter": 300,
             "tol": 1e-8,
@@ -564,7 +564,7 @@ class Test_reNRTL_Multi(object):
         Y = np.zeros((40, 4))
 
         for i in range(0, len(ninCA1)):
-            m = model
+            m = create_model()
             # Add units to molal concentration from experimental data
             molal_conc_elect1 = ninCA1[i] * (pyunits.mol / pyunits.kg)
             molal_conc_elect2 = ninCA2[i] * (pyunits.mol / pyunits.kg)
