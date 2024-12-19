@@ -138,10 +138,9 @@ def populate_enrtl_state_vars_multi(blk, base="FpcTP"):
     """Initialize state variables"""
     blk.temperature = 27 + 273.15
     blk.pressure = 101325
-
     if base == "FpcTP":
         feed_flow_mass = 0.15  # kg/s
-        feed_mass_frac_comp = {"Na+": 0.003022, "Cl-": 0.004601, "SO4_2-": 0.01263} # Na =  0.009028797225342378
+        feed_mass_frac_comp = {"Na+": 0.0012069753083321201, "Cl-": 0.0006228660204701407, "SO4_2-": 0.0016877274529784104} # m(NaCl) : m(Na2SO4) = 1:1
         feed_mass_frac_comp["H2O"] = 1 - sum(x for x in feed_mass_frac_comp.values())
         mw_comp = {
             "H2O": 18.015e-3,
@@ -190,7 +189,7 @@ def create_model():
     m.fs.molal_conc_solute = pyo.Var(
         m.fs.set_evaporators,
         initialize=2,
-        bounds=(0, 6),
+        bounds=(0, 10),
         units=pyunits.mol / pyunits.kg,
         doc="Molal concentration of solute",
     )
@@ -451,7 +450,7 @@ def add_enrtl_method_multi(m, n_evap=None):
     )
 
     m.fs.enrtl_state[n_evap].mass_ratio_ion = {
-        "Na+": sb_enrtl.mw_comp["Na+"]
+        "Na+": sb_enrtl.mw_comp["Na+"]*3
         / (
             m.fs.enrtl_state[n_evap].mol_mass_ion_molecule_nacl
             + m.fs.enrtl_state[n_evap].mol_mass_ion_molecule_na2so4
@@ -586,11 +585,17 @@ def set_model_inputs(m):
     # Seawater feed flowrate was determined from backcalculation from provided experimental SEC,Qin value, and water recovery % from [2]
     # TDS flowrate = [(TDS concentration=23,170ppm * Seawater feed flowrate=0.15)]/1.0e6
     m.fs.evaporator[1].inlet_feed.flow_mass_phase_comp[0, "Liq", "H2O"].fix(
-        0.15
+        0.1465245
     )  # kg/s
-    m.fs.evaporator[1].inlet_feed.flow_mass_phase_comp[0, "Liq", "TDS"].fix(
-        0.0035
-    )  # kg/s
+    @m.fs.Constraint()
+    def TDS_feed(b):
+        return (
+                0.023170/b.properties_feed.mw_comp["TDS"]*0.15 == b.evaporator[1].inlet_feed.flow_mass_phase_comp[0, "Liq", "TDS"]
+        )
+    
+    # m.fs.evaporator[1].inlet_feed.flow_mass_phase_comp[0, "Liq", "TDS"].fix(
+    #     0.0035
+    # )  # kg/s
     m.fs.evaporator[1].inlet_feed.temperature[0].fix(27 + 273.15)  # K
     m.fs.evaporator[1].inlet_feed.pressure[0].fix(101325)  # Pa
 
@@ -619,7 +624,7 @@ def set_model_inputs(m):
     # Evaporator[2]
     m.fs.evaporator[2].U.fix(500)  # W/K-m^2
     m.fs.evaporator[2].area.fix(10)  # m^2
-    m.fs.evaporator[2].outlet_brine.temperature[0].fix(66 + 273.15)  # K
+    m.fs.evaporator[2].outlet_brine.temperature[0].fix(64 + 273.15)  # K
     m.fs.evaporator[2].delta_temperature_in.fix(10)  # K
     m.fs.evaporator[2].delta_temperature_out.fix(8)  # K
 
@@ -629,7 +634,7 @@ def set_model_inputs(m):
     # Evaporator[3]
     m.fs.evaporator[3].U.fix(500)  # W/K-m^2
     m.fs.evaporator[3].area.fix(10)  # m^2
-    m.fs.evaporator[3].outlet_brine.temperature[0].fix(70 + 273.15)  # K
+    m.fs.evaporator[3].outlet_brine.temperature[0].fix(63 + 273.15)  # K
     m.fs.evaporator[3].delta_temperature_in.fix(10)  # K
     m.fs.evaporator[3].delta_temperature_out.fix(8)  # K
 
