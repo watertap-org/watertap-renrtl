@@ -458,7 +458,7 @@ class TestMED:
         )
 
         assert degrees_of_freedom(m) == 0
-        
+
     @pytest.mark.component
     @pytest.mark.requires_idaes_solver
     def test_add_bounds(self, Initialize_Setup):
@@ -482,9 +482,9 @@ class TestMED:
 
         results = solver.solve(m, tee=False)
 
-
         assert_optimal_termination(results)
                     
+
         # additional constraints, variables, and expressions
 
         # assert isinstance(m.fs.eq_upper_bound_generator_delta_temperature_in, Constraint)
