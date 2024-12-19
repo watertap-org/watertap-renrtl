@@ -487,12 +487,10 @@ class TestMED:
 
         # additional constraints, variables, and expressions
 
-        # assert isinstance(m.fs.eq_upper_bound_generator_delta_temperature_in, Constraint)
-        # assert isinstance(m.fs.eq_upper_bound_generator_delta_temprature_out, Constraint)
         # for e in m.fs.set2_evaporators:
-        #             assert isinstance(m.fs.eq_upper_bound_evaporators_pressure[e], Constraint)
+        #             assert isinstance(m.fs.eq_upper_bound_evaporators_pressure[e], Constraint)   # You have it in line 503
         # for e in m.fs.set_evaporators:
-        #             assert isinstance(m.fs.UA_term[e], Expression)
+        #             assert isinstance(m.fs.UA_term[e], Expression)                               # You have it in line 511
         assert isinstance(
             m.fs.eq_upper_bound_evaporators_delta_temprature_in, Constraint
         )
@@ -517,5 +515,5 @@ class TestMED:
 
         # based on estimated values at 70% water recovery from [2]
         # assert m.fs.generator.outlet.pressure.values == pytest.approx(30000, rel=1e-3)        # E       AttributeError: '_ScalarEvaporator' object has no attribute 'outlet'
-        # assert m.fs.specific_energy_consumption.value == pytest.approx(205.00, rel=1e-3)      #E       assert 747.7165460600193 == 205.0 ± 2.1e-01
-        # assert value(m.fs.performance_ratio) == pytest.approx(3.4, rel=1e-3)                    #E       assert 0.8615304269691892 == 3.4 ± 3.4e-03
+        # assert m.fs.specific_energy_consumption.value == pytest.approx(205.00, rel=1e-3)      # E       assert 199.2132251755257 == 205.0 ± 2.1e-01
+        # assert value(m.fs.performance_ratio) == pytest.approx(3.4, rel=1e-3)                  # E       assert 3.233623445371017 == 3.4 ± 3.4e-03
