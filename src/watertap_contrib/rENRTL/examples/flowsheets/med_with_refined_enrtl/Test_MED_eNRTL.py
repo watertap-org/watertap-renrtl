@@ -339,7 +339,11 @@ class TestMED:
         assert m.fs.steam_generator.outlet.temperature[0].value == pytest.approx(
             69.1 + 273.15, rel=1e-3
         )
-        assert m.fs.steam_generator.outlet.pressure[0].value == pytest.approx(30000, rel=1e-3)
-        assert value(m.fs.total_water_produced_gpm) == pytest.approx(1.4598, rel=1e-3)           
-        assert m.fs.specific_energy_consumption.value == pytest.approx(331.7649, rel=1e-3)        
-        assert value(m.fs.performance_ratio) == pytest.approx(1.9417, rel=1e-3)                  
+        assert m.fs.steam_generator.outlet.pressure[0].value == pytest.approx(
+            30000, rel=1e-3
+        )
+        assert value(m.fs.total_water_produced_gpm) == pytest.approx(1.4598, rel=1e-3)
+        assert m.fs.specific_energy_consumption.value == pytest.approx(
+            331.7649, rel=1e-3
+        )
+        assert value(m.fs.performance_ratio) == pytest.approx(1.9417, rel=1e-3)

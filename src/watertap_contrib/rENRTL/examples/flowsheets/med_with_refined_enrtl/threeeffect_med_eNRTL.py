@@ -451,7 +451,8 @@ def add_enrtl_method_multi(m, n_evap=None):
     )
 
     m.fs.enrtl_state[n_evap].mass_ratio_ion = {
-        "Na+": sb_enrtl.mw_comp["Na+"]*3
+        "Na+": sb_enrtl.mw_comp["Na+"]
+        * 3
         / (
             m.fs.enrtl_state[n_evap].mol_mass_ion_molecule_nacl
             + m.fs.enrtl_state[n_evap].mol_mass_ion_molecule_na2so4
