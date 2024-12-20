@@ -127,7 +127,7 @@ solve_nonideal_AHP = True  # AHP loop
 
 # run_multi toggles between single-component and multi-component electrolyte systems. To use the multi-refined eNRTL, run_multi=True. To use the single refined eNRTL, run_multi=False.
 # NOTE: Make sure the config files, LiBr_enrtl_config_FpcTPupt and enrtl_config_FpcTP or renrtl_multi_config are using the same refined eNRTL model
-run_multi = True 
+run_multi = True
 
 if run_multi:
     import renrtl_multi_config  # multi electrolytes
@@ -686,7 +686,8 @@ def add_enrtl_method_multi(m, n_evap=None):
     )
 
     m.fs.enrtl_state[n_evap].mass_ratio_ion = {
-        "Na+": sb_enrtl.mw_comp["Na+"]*3
+        "Na+": sb_enrtl.mw_comp["Na+"]
+        * 3
         / (
             m.fs.enrtl_state[n_evap].mol_mass_ion_molecule_nacl
             + m.fs.enrtl_state[n_evap].mol_mass_ion_molecule_na2so4

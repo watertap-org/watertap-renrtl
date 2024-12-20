@@ -486,9 +486,15 @@ class TestMED:
         assert_optimal_termination(results)
 
         # additional constraints, variables, and expressions
-        assert isinstance(m.fs.eq_upper_bound_evaporators_delta_temperature_in, Constraint)
-        assert isinstance(m.fs.eq_upper_bound_generator_delta_temperature_in, Constraint)
-        assert isinstance(m.fs.eq_upper_bound_generator_delta_temprature_out, Constraint)
+        assert isinstance(
+            m.fs.eq_upper_bound_evaporators_delta_temperature_in, Constraint
+        )
+        assert isinstance(
+            m.fs.eq_upper_bound_generator_delta_temperature_in, Constraint
+        )
+        assert isinstance(
+            m.fs.eq_upper_bound_generator_delta_temprature_out, Constraint
+        )
         assert isinstance(m.fs.eq_upper_bound_evaporators_pressure, Constraint)
         assert isinstance(m.fs.gen_area_upper_bound, Constraint)
         assert isinstance(m.fs.econ_area_upper_bound, Constraint)
@@ -502,7 +508,10 @@ class TestMED:
         assert isinstance(m.fs.total_water_produced_gpm, Expression)
         assert isinstance(m.fs.performance_ratio, Expression)
 
-      
-        assert m.fs.generator.outlet_vapor.pressure[0].value == pytest.approx(30000, rel=1e-3)       
-        assert value(m.fs.specific_energy_consumption.value) == pytest.approx(190.6123, rel=1e-3)      
-        assert value(m.fs.performance_ratio) == pytest.approx(3.3795, rel=1e-3)                
+        assert m.fs.generator.outlet_vapor.pressure[0].value == pytest.approx(
+            30000, rel=1e-3
+        )
+        assert value(m.fs.specific_energy_consumption.value) == pytest.approx(
+            190.6123, rel=1e-3
+        )
+        assert value(m.fs.performance_ratio) == pytest.approx(3.3795, rel=1e-3)

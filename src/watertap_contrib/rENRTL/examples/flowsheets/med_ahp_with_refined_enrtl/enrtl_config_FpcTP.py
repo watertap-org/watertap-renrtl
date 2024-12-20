@@ -70,7 +70,9 @@ refined_enrtl_method = True
 
 if refined_enrtl_method:
     # Import refined eNRTL method
-    from watertap_contrib.rENRTL.examples.flowsheets.mvc_with_refined_enrtl.refined_enrtl import rENRTL
+    from watertap_contrib.rENRTL.examples.flowsheets.mvc_with_refined_enrtl.refined_enrtl import (
+        rENRTL,
+    )
 
     # The hydration models supported by the refined eNRTL method are:
     # constant_hydration or stepwise_hydration.
